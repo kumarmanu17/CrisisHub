@@ -15,7 +15,7 @@ struct ResourceAllocation {
 
     static ResourceAllocation from_json(const json& j) {
         ResourceAllocation allocation;
-        allocation.resourceId = j.at("resourceId").get<std::string>();
+        allocation.resourceId = j.value("resourceId", "");
         allocation.units = j.value("units", 1);
         return allocation;
     }

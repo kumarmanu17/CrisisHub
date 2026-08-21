@@ -56,20 +56,20 @@ struct Crisis {
 
     static Crisis from_json(const json& j) {
         Crisis c;
-        c.id = j.at("id").get<std::string>();
-        c.type = j.at("type").get<std::string>();
-        c.department = j.at("department").get<std::string>();
-        c.severity = j.at("severity").get<int>();
-        c.description = j.at("description").get<std::string>();
-        if (j.contains("requiredResources")) {
-            c.requiredResources = j.at("requiredResources").get<std::vector<std::string>>();
+        c.id = j.value("id", "");
+        c.type = j.value("type", "");
+        c.department = j.value("department", "");
+        c.severity = j.value("severity", 1);
+        c.description = j.value("description", "");
+        if (j.contains("requiredResources") && j["requiredResources"].is_array()) {
+            c.requiredResources = j["requiredResources"].get<std::vector<std::string>>();
         }
         c.requiredResourceType = j.value("requiredResourceType", c.requiredResources.empty() ? std::string() : c.requiredResources.front());
         c.requiredUnits = j.value("requiredUnits", 1);
-        c.status = j.at("status").get<std::string>();
-        c.timestamp = j.at("timestamp").get<std::string>();
-        if (j.contains("allocatedResourceIds")) {
-            c.allocatedResourceIds = j.at("allocatedResourceIds").get<std::vector<std::string>>();
+        c.status = j.value("status", "Pending");
+        c.timestamp = j.value("timestamp", "");
+        if (j.contains("allocatedResourceIds") && j["allocatedResourceIds"].is_array()) {
+            c.allocatedResourceIds = j["allocatedResourceIds"].get<std::vector<std::string>>();
         }
         if (j.contains("allocatedResources") && j["allocatedResources"].is_array()) {
             for (const auto& item : j["allocatedResources"]) {

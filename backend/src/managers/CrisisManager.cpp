@@ -27,16 +27,26 @@ void CrisisManager::loadCrises() {
     }
 }
 
+#ifdef _WIN32
+#include <direct.h>
+#else
+#include <sys/stat.h>
+#endif
+
 void CrisisManager::saveCrises() {
     json j = json::array();
     for (const auto& c : crises) {
         j.push_back(c.to_json());
     }
-    try {
-        std::filesystem::path p(filepath);
-        if (p.has_parent_path()) std::filesystem::create_directories(p.parent_path());
-    } catch (const std::exception& e) {
-        std::cerr << "Failed to create data directory for crises: " << e.what() << "\n";
+    
+    size_t pos = filepath.find_last_of("/\\");
+    if (pos != std::string::npos) {
+        std::string dir = filepath.substr(0, pos);
+#ifdef _WIN32
+        _mkdir(dir.c_str());
+#else
+        mkdir(dir.c_str(), 0755);
+#endif
     }
 
     std::ofstream file(filepath);

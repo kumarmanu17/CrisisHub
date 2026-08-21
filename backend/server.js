@@ -301,6 +301,20 @@ function handleOptions(res) {
   res.end();
 }
 
+function isNonEmptyString(val) {
+  return typeof val === 'string' && val.trim().length > 0;
+}
+
+function isValidInt(val, minVal, maxVal = Number.MAX_SAFE_INTEGER) {
+  const num = Number(val);
+  return Number.isInteger(num) && num >= minVal && num <= maxVal;
+}
+
+function isValidNumber(val, minVal) {
+  const num = Number(val);
+  return !Number.isNaN(num) && Number.isFinite(num) && num >= minVal;
+}
+
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const { pathname } = url;
@@ -313,13 +327,33 @@ const server = http.createServer(async (req, res) => {
   const state = loadState();
 
   try {
+    // 1. POST /api/login
     if (req.method === 'POST' && pathname === '/api/login') {
-      const body = JSON.parse(await getBody(req) || '{}');
-      const user = state.users.find((item) => item.username === body.username && item.password === body.password);
+      const rawBody = await getBody(req);
+      if (!rawBody || !rawBody.trim()) {
+        sendJson(res, 400, { success: false, message: 'Request body cannot be empty.' });
+        return;
+      }
+
+      let body;
+      try {
+        body = JSON.parse(rawBody);
+      } catch {
+        sendJson(res, 400, { success: false, message: 'Invalid JSON payload format.' });
+        return;
+      }
+
+      if (!isNonEmptyString(body.username) || !isNonEmptyString(body.password)) {
+        sendJson(res, 400, { success: false, message: 'Username and password are required fields.' });
+        return;
+      }
+
+      const user = state.users.find((item) => item.username === body.username.trim() && item.password === body.password.trim());
       if (!user) {
         sendJson(res, 401, { success: false, message: 'Invalid username or password.' });
         return;
       }
+
       sendJson(res, 200, {
         success: true,
         token: `demo_session_token_${user.username}`,
@@ -328,22 +362,67 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    // 2. GET /api/crises
     if (req.method === 'GET' && pathname === '/api/crises') {
       sendJson(res, 200, state.crises.map(normalizeCrisisRecord));
       return;
     }
 
+    // 3. POST /api/crises
     if (req.method === 'POST' && pathname === '/api/crises') {
-      const body = JSON.parse(await getBody(req) || '{}');
-      const requiredType = body.requiredResourceType || (Array.isArray(body.requiredResources) && body.requiredResources[0]) || '';
+      const rawBody = await getBody(req);
+      if (!rawBody || !rawBody.trim()) {
+        sendJson(res, 400, { success: false, message: 'Request body cannot be empty.' });
+        return;
+      }
+
+      let body;
+      try {
+        body = JSON.parse(rawBody);
+      } catch {
+        sendJson(res, 400, { success: false, message: 'Invalid JSON payload format.' });
+        return;
+      }
+
+      if (!isNonEmptyString(body.type)) {
+        sendJson(res, 400, { success: false, message: "Incident category ('type') is required." });
+        return;
+      }
+
+      if (!isNonEmptyString(body.department)) {
+        sendJson(res, 400, { success: false, message: 'Impacted department is required.' });
+        return;
+      }
+
+      if (!isValidInt(body.severity, 1, 4)) {
+        sendJson(res, 400, { success: false, message: 'Threat severity level must be an integer between 1 (Low) and 4 (Critical).' });
+        return;
+      }
+
+      if (!isNonEmptyString(body.description)) {
+        sendJson(res, 400, { success: false, message: 'Incident description is required.' });
+        return;
+      }
+
+      const requiredType = body.requiredResourceType || (Array.isArray(body.requiredResources) && isNonEmptyString(body.requiredResources[0]) && body.requiredResources[0]) || '';
+      if (!isNonEmptyString(requiredType)) {
+        sendJson(res, 400, { success: false, message: 'Required resource type must be specified.' });
+        return;
+      }
+
       const requiredUnits = Number(body.requiredUnits || 1);
+      if (!isValidInt(requiredUnits, 1)) {
+        sendJson(res, 400, { success: false, message: 'Required units must be a positive integer greater than zero.' });
+        return;
+      }
+
       const crisis = normalizeCrisisRecord({
         id: nextId(state.crises, 'C-', 2000),
-        type: body.type,
-        department: body.department,
-        severity: Number(body.severity || 1),
-        description: body.description || '',
-        requiredResources: requiredType ? [requiredType] : [],
+        type: body.type.trim(),
+        department: body.department.trim(),
+        severity: Number(body.severity),
+        description: body.description.trim(),
+        requiredResources: [requiredType],
         requiredResourceType: requiredType,
         requiredUnits,
         status: 'Pending',
@@ -354,7 +433,7 @@ const server = http.createServer(async (req, res) => {
 
       const allocationRecord = allocateCrisis(state, crisis);
       if (!allocationRecord) {
-        sendJson(res, 400, { success: false, message: `Insufficient units in resource registry for ${requiredType || 'the requested resource type'}.` });
+        sendJson(res, 400, { success: false, message: `Insufficient units in resource registry for ${requiredType}.` });
         return;
       }
 
@@ -364,11 +443,22 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    // 4. PUT /api/crises/resolve/:id
     if (req.method === 'PUT' && pathname.startsWith('/api/crises/resolve/')) {
-      const crisisId = decodeURIComponent(pathname.replace('/api/crises/resolve/', ''));
+      const crisisId = decodeURIComponent(pathname.replace('/api/crises/resolve/', '')).trim();
+      if (!crisisId) {
+        sendJson(res, 400, { success: false, message: 'Crisis ID cannot be empty.' });
+        return;
+      }
+
       const crisis = state.crises.find((item) => item.id === crisisId);
       if (!crisis) {
-        sendJson(res, 404, { success: false, message: 'Crisis not found.' });
+        sendJson(res, 404, { success: false, message: `Crisis with ID '${crisisId}' not found.` });
+        return;
+      }
+
+      if (crisis.status === 'Resolved') {
+        sendJson(res, 200, { success: true, message: 'Crisis is already resolved.', crisis });
         return;
       }
 
@@ -381,11 +471,17 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    // 5. DELETE /api/crises/:id
     if (req.method === 'DELETE' && pathname.startsWith('/api/crises/')) {
-      const crisisId = decodeURIComponent(pathname.replace('/api/crises/', ''));
+      const crisisId = decodeURIComponent(pathname.replace('/api/crises/', '')).trim();
+      if (!crisisId) {
+        sendJson(res, 400, { success: false, message: 'Crisis ID cannot be empty.' });
+        return;
+      }
+
       const crisisIndex = state.crises.findIndex((item) => item.id === crisisId);
       if (crisisIndex === -1) {
-        sendJson(res, 404, { success: false, message: 'Crisis not found.' });
+        sendJson(res, 404, { success: false, message: `Crisis with ID '${crisisId}' not found.` });
         return;
       }
 
@@ -397,8 +493,9 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    // 6. GET /api/resources
     if (req.method === 'GET' && pathname === '/api/resources') {
-      const query = (url.searchParams.get('q') || '').toLowerCase();
+      const query = (url.searchParams.get('q') || '').toLowerCase().trim();
       const resources = query
         ? state.resources.filter((resource) => [resource.name, resource.type, resource.department].some((field) => String(field || '').toLowerCase().includes(query)))
         : state.resources;
@@ -406,48 +503,128 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    // 7. POST /api/resources
     if (req.method === 'POST' && pathname === '/api/resources') {
-      const body = JSON.parse(await getBody(req) || '{}');
+      const rawBody = await getBody(req);
+      if (!rawBody || !rawBody.trim()) {
+        sendJson(res, 400, { success: false, message: 'Request body cannot be empty.' });
+        return;
+      }
+
+      let body;
+      try {
+        body = JSON.parse(rawBody);
+      } catch {
+        sendJson(res, 400, { success: false, message: 'Invalid JSON payload format.' });
+        return;
+      }
+
+      if (!isNonEmptyString(body.name)) {
+        sendJson(res, 400, { success: false, message: 'Resource name is required.' });
+        return;
+      }
+
+      if (!isNonEmptyString(body.type)) {
+        sendJson(res, 400, { success: false, message: 'Resource type is required.' });
+        return;
+      }
+
+      if (!isNonEmptyString(body.department)) {
+        sendJson(res, 400, { success: false, message: 'Managing department is required.' });
+        return;
+      }
+
+      if (!isValidInt(body.capacity, 1)) {
+        sendJson(res, 400, { success: false, message: 'Resource capacity must be an integer greater than zero.' });
+        return;
+      }
+
+      if (!isValidNumber(body.cost, 0)) {
+        sendJson(res, 400, { success: false, message: 'Resource operating cost must be a non-negative number.' });
+        return;
+      }
+
       const resource = {
         id: nextId(state.resources, 'R-', 3000),
-        name: body.name,
-        type: body.type,
-        capacity: Number(body.capacity || 0),
+        name: body.name.trim(),
+        type: body.type.trim(),
+        capacity: Number(body.capacity),
         available: body.available !== undefined ? Boolean(body.available) : true,
-        department: body.department,
-        cost: Number(body.cost || 0)
+        department: body.department.trim(),
+        cost: Number(body.cost)
       };
+
       state.resources.push(resource);
       saveState(state);
       sendJson(res, 201, { success: true, resource });
       return;
     }
 
+    // 8. PUT /api/resources/:id
     if (req.method === 'PUT' && pathname.startsWith('/api/resources/')) {
-      const resourceId = decodeURIComponent(pathname.replace('/api/resources/', ''));
-      const resource = state.resources.find((item) => item.id === resourceId);
-      if (!resource) {
-        sendJson(res, 404, { success: false, message: 'Resource not found.' });
+      const resourceId = decodeURIComponent(pathname.replace('/api/resources/', '')).trim();
+      if (!resourceId) {
+        sendJson(res, 400, { success: false, message: 'Resource ID cannot be empty.' });
         return;
       }
 
-      const body = JSON.parse(await getBody(req) || '{}');
-      resource.name = body.name;
-      resource.type = body.type;
-      resource.capacity = Number(body.capacity || 0);
-      resource.department = body.department;
-      resource.cost = Number(body.cost || 0);
-      resource.available = Boolean(body.available);
+      const resource = state.resources.find((item) => item.id === resourceId);
+      if (!resource) {
+        sendJson(res, 404, { success: false, message: `Resource with ID '${resourceId}' not found.` });
+        return;
+      }
+
+      const rawBody = await getBody(req);
+      if (!rawBody || !rawBody.trim()) {
+        sendJson(res, 400, { success: false, message: 'Request body cannot be empty.' });
+        return;
+      }
+
+      let body;
+      try {
+        body = JSON.parse(rawBody);
+      } catch {
+        sendJson(res, 400, { success: false, message: 'Invalid JSON payload format.' });
+        return;
+      }
+
+      if (!isNonEmptyString(body.name) || !isNonEmptyString(body.type) || !isNonEmptyString(body.department)) {
+        sendJson(res, 400, { success: false, message: 'Name, type, and department are required string fields.' });
+        return;
+      }
+
+      if (!isValidInt(body.capacity, 0)) {
+        sendJson(res, 400, { success: false, message: 'Capacity must be a non-negative integer.' });
+        return;
+      }
+
+      if (!isValidNumber(body.cost, 0)) {
+        sendJson(res, 400, { success: false, message: 'Cost must be a non-negative number.' });
+        return;
+      }
+
+      resource.name = body.name.trim();
+      resource.type = body.type.trim();
+      resource.capacity = Number(body.capacity);
+      resource.department = body.department.trim();
+      resource.cost = Number(body.cost);
+      resource.available = body.available !== undefined ? Boolean(body.available) : resource.capacity > 0;
       saveState(state);
       sendJson(res, 200, { success: true, resource });
       return;
     }
 
+    // 9. DELETE /api/resources/:id
     if (req.method === 'DELETE' && pathname.startsWith('/api/resources/')) {
-      const resourceId = decodeURIComponent(pathname.replace('/api/resources/', ''));
+      const resourceId = decodeURIComponent(pathname.replace('/api/resources/', '')).trim();
+      if (!resourceId) {
+        sendJson(res, 400, { success: false, message: 'Resource ID cannot be empty.' });
+        return;
+      }
+
       const index = state.resources.findIndex((item) => item.id === resourceId);
       if (index === -1) {
-        sendJson(res, 404, { success: false, message: 'Resource not found.' });
+        sendJson(res, 404, { success: false, message: `Resource with ID '${resourceId}' not found.` });
         return;
       }
       state.resources.splice(index, 1);
@@ -456,22 +633,58 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    // 10. GET /api/projects
     if (req.method === 'GET' && pathname === '/api/projects') {
       sendJson(res, 200, state.projects.map(normalizeProjectRecord));
       return;
     }
 
+    // 11. POST /api/projects
     if (req.method === 'POST' && pathname === '/api/projects') {
-      const body = JSON.parse(await getBody(req) || '{}');
-      const resourceType = body.resourceType || '';
+      const rawBody = await getBody(req);
+      if (!rawBody || !rawBody.trim()) {
+        sendJson(res, 400, { success: false, message: 'Request body cannot be empty.' });
+        return;
+      }
+
+      let body;
+      try {
+        body = JSON.parse(rawBody);
+      } catch {
+        sendJson(res, 400, { success: false, message: 'Invalid JSON payload format.' });
+        return;
+      }
+
+      if (!isNonEmptyString(body.name)) {
+        sendJson(res, 400, { success: false, message: 'Project name is required.' });
+        return;
+      }
+
+      if (!isNonEmptyString(body.department)) {
+        sendJson(res, 400, { success: false, message: 'Project department is required.' });
+        return;
+      }
+
+      if (!isNonEmptyString(body.resourceType)) {
+        sendJson(res, 400, { success: false, message: 'Required resource type is required.' });
+        return;
+      }
+
       const requiredUnits = Number(body.requiredUnits || 1);
+      if (!isValidInt(requiredUnits, 1)) {
+        sendJson(res, 400, { success: false, message: 'Required units must be a positive integer greater than zero.' });
+        return;
+      }
+
+      const resourceType = body.resourceType.trim();
+
       const project = normalizeProjectRecord({
         id: nextId(state.projects, 'P-', 4000),
-        name: body.name,
-        department: body.department,
+        name: body.name.trim(),
+        department: body.department.trim(),
         resourceType,
         requiredUnits,
-        description: body.description || '',
+        description: body.description ? String(body.description).trim() : '',
         status: 'Pending',
         timestamp: nowIso(),
         allocatedResources: []
@@ -479,7 +692,7 @@ const server = http.createServer(async (req, res) => {
 
       const allocations = reserveUnits(state, resourceType, requiredUnits);
       if (!allocations) {
-        sendJson(res, 400, { success: false, message: `Insufficient units in resource registry for ${resourceType || 'the requested resource type'}.` });
+        sendJson(res, 400, { success: false, message: `Insufficient units in resource registry for ${resourceType}.` });
         return;
       }
 
@@ -491,13 +704,25 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    // 12. PUT /api/projects/complete/:id
     if (req.method === 'PUT' && pathname.startsWith('/api/projects/complete/')) {
-      const projectId = decodeURIComponent(pathname.replace('/api/projects/complete/', ''));
-      const project = state.projects.find((item) => item.id === projectId);
-      if (!project) {
-        sendJson(res, 404, { success: false, message: 'Project not found.' });
+      const projectId = decodeURIComponent(pathname.replace('/api/projects/complete/', '')).trim();
+      if (!projectId) {
+        sendJson(res, 400, { success: false, message: 'Project ID cannot be empty.' });
         return;
       }
+
+      const project = state.projects.find((item) => item.id === projectId);
+      if (!project) {
+        sendJson(res, 404, { success: false, message: `Project with ID '${projectId}' not found.` });
+        return;
+      }
+
+      if (project.status === 'Completed') {
+        sendJson(res, 200, { success: true, message: 'Project is already completed.', project });
+        return;
+      }
+
       releaseUnits(state, project.allocatedResources || []);
       project.status = 'Completed';
       project.allocatedResources = [];
@@ -506,11 +731,17 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    // 13. DELETE /api/projects/:id
     if (req.method === 'DELETE' && pathname.startsWith('/api/projects/')) {
-      const projectId = decodeURIComponent(pathname.replace('/api/projects/', ''));
+      const projectId = decodeURIComponent(pathname.replace('/api/projects/', '')).trim();
+      if (!projectId) {
+        sendJson(res, 400, { success: false, message: 'Project ID cannot be empty.' });
+        return;
+      }
+
       const index = state.projects.findIndex((item) => item.id === projectId);
       if (index === -1) {
-        sendJson(res, 404, { success: false, message: 'Project not found.' });
+        sendJson(res, 404, { success: false, message: `Project with ID '${projectId}' not found.` });
         return;
       }
       releaseUnits(state, state.projects[index].allocatedResources || []);
@@ -520,6 +751,7 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    // 14. POST /api/allocate
     if (req.method === 'POST' && pathname === '/api/allocate') {
       const alerts = [];
       let allocatedCount = 0;
@@ -545,11 +777,13 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    // 15. GET /api/dashboard/stats
     if (req.method === 'GET' && pathname === '/api/dashboard/stats') {
       sendJson(res, 200, buildDashboardStats(state));
       return;
     }
 
+    // 16. GET /api/reports/performance
     if (req.method === 'GET' && pathname === '/api/reports/performance') {
       sendJson(res, 200, buildReportStats(state));
       return;
@@ -557,7 +791,7 @@ const server = http.createServer(async (req, res) => {
 
     notFound(res);
   } catch (error) {
-    sendJson(res, 400, { success: false, message: `Malformed request: ${error.message}` });
+    sendJson(res, 500, { success: false, message: `Internal server error: ${error.message}` });
   }
 });
 

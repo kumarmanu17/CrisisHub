@@ -27,13 +27,13 @@ struct Resource {
 
     static Resource from_json(const json& j) {
         Resource r;
-        r.id = j.at("id").get<std::string>();
-        r.name = j.at("name").get<std::string>();
-        r.type = j.at("type").get<std::string>();
-        r.capacity = j.at("capacity").get<int>();
+        r.id = j.value("id", "");
+        r.name = j.value("name", "");
+        r.type = j.value("type", "");
+        r.capacity = j.value("capacity", 0);
         r.available = j.value("available", r.capacity > 0);
-        r.department = j.at("department").get<std::string>();
-        r.cost = j.at("cost").get<double>();
+        r.department = j.value("department", "");
+        r.cost = j.value("cost", 0.0);
         return r;
     }
 };

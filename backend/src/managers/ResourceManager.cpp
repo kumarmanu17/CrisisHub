@@ -28,19 +28,26 @@ void ResourceManager::loadResources() {
     }
 }
 
+#ifdef _WIN32
+#include <direct.h>
+#else
+#include <sys/stat.h>
+#endif
+
 void ResourceManager::saveResources() {
     json j = json::array();
     for (const auto& r : resources) {
         j.push_back(r.to_json());
     }
 
-    try {
-        std::filesystem::path p(filepath);
-        if (p.has_parent_path()) {
-            std::filesystem::create_directories(p.parent_path());
-        }
-    } catch (const std::exception& e) {
-        std::cerr << "Failed to create data directory for resources: " << e.what() << "\n";
+    size_t pos = filepath.find_last_of("/\\");
+    if (pos != std::string::npos) {
+        std::string dir = filepath.substr(0, pos);
+#ifdef _WIN32
+        _mkdir(dir.c_str());
+#else
+        mkdir(dir.c_str(), 0755);
+#endif
     }
 
     std::ofstream file(filepath);

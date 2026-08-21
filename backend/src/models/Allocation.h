@@ -26,12 +26,14 @@ struct Allocation {
 
     static Allocation from_json(const json& j) {
         Allocation a;
-        a.id = j.at("id").get<std::string>();
-        a.crisisId = j.at("crisisId").get<std::string>();
-        a.crisisTitle = j.at("crisisTitle").get<std::string>();
-        a.resourceIds = j.at("resourceIds").get<std::vector<std::string>>();
-        a.timestamp = j.at("timestamp").get<std::string>();
-        a.totalCost = j.at("totalCost").get<double>();
+        a.id = j.value("id", "");
+        a.crisisId = j.value("crisisId", "");
+        a.crisisTitle = j.value("crisisTitle", "");
+        if (j.contains("resourceIds") && j["resourceIds"].is_array()) {
+            a.resourceIds = j["resourceIds"].get<std::vector<std::string>>();
+        }
+        a.timestamp = j.value("timestamp", "");
+        a.totalCost = j.value("totalCost", 0.0);
         return a;
     }
 };
