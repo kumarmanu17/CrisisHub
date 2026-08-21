@@ -94,10 +94,21 @@ void HttpServer::setupRoutes() {
     });
 
     // 3. GET /api/crises
-    svr.Get("/api/crises", [this](const httplib::Request&, httplib::Response& res) {
+    svr.Get("/api/crises", [this](const httplib::Request& req, httplib::Response& res) {
         setCorsHeaders(res);
         try {
-            auto crises = crisisMgr->getAllCrises();
+            std::string status = req.has_param("status") ? req.get_param_value("status") : "";
+            std::string department = req.has_param("department") ? req.get_param_value("department") : "";
+            std::string type = req.has_param("type") ? req.get_param_value("type") : "";
+            std::string query = req.has_param("q") ? req.get_param_value("q") : "";
+            int severity = 0;
+            if (req.has_param("severity")) {
+                try {
+                    severity = std::stoi(req.get_param_value("severity"));
+                } catch (...) {}
+            }
+
+            auto crises = crisisMgr->searchAndFilterCrises(status, department, severity, type, query);
             json j = json::array();
             for (const auto& c : crises) {
                 j.push_back(c.to_json());
@@ -319,7 +330,11 @@ void HttpServer::setupRoutes() {
         setCorsHeaders(res);
         try {
             std::string query = req.has_param("q") ? req.get_param_value("q") : "";
-            auto resources = resourceMgr->searchResources(query);
+            std::string department = req.has_param("department") ? req.get_param_value("department") : "";
+            std::string type = req.has_param("type") ? req.get_param_value("type") : "";
+            std::string availableStr = req.has_param("available") ? req.get_param_value("available") : "";
+
+            auto resources = resourceMgr->searchResources(query, department, type, availableStr);
             
             json j = json::array();
             for (const auto& r : resources) {
@@ -507,10 +522,15 @@ void HttpServer::setupRoutes() {
     });
 
     // 10. GET /api/projects
-    svr.Get("/api/projects", [this](const httplib::Request&, httplib::Response& res) {
+    svr.Get("/api/projects", [this](const httplib::Request& req, httplib::Response& res) {
         setCorsHeaders(res);
         try {
-            auto projects = projectMgr->getAllProjects();
+            std::string status = req.has_param("status") ? req.get_param_value("status") : "";
+            std::string department = req.has_param("department") ? req.get_param_value("department") : "";
+            std::string resourceType = req.has_param("resourceType") ? req.get_param_value("resourceType") : "";
+            std::string query = req.has_param("q") ? req.get_param_value("q") : "";
+
+            auto projects = projectMgr->searchAndFilterProjects(status, department, resourceType, query);
             json j = json::array();
             for (const auto& project : projects) {
                 j.push_back(project.to_json());

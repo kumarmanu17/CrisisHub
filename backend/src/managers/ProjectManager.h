@@ -15,6 +15,7 @@ private:
 public:
     ProjectManager(const std::string& dataPath);
     std::vector<Project> getAllProjects();
+    std::vector<Project> searchAndFilterProjects(const std::string& status, const std::string& department, const std::string& resourceType, const std::string& query);
     Project getProjectById(const std::string& id);
     bool addProject(const Project& project);
     bool updateProject(const Project& project);

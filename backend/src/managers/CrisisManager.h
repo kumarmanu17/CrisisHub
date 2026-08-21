@@ -14,6 +14,7 @@ private:
 public:
     CrisisManager(const std::string& dataPath);
     std::vector<Crisis> getAllCrises();
+    std::vector<Crisis> searchAndFilterCrises(const std::string& status, const std::string& department, int severity, const std::string& type, const std::string& query);
     Crisis getCrisisById(const std::string& id);
     bool addCrisis(const Crisis& c);
     bool updateCrisis(const Crisis& c);

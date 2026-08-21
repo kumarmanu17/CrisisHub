@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldAlert, Plus, CheckCircle, RefreshCw, X } from 'lucide-react';
+import { ShieldAlert, Plus, CheckCircle, RefreshCw, X, Search, Filter, RotateCcw } from 'lucide-react';
 import { api } from '../services/api';
 
 interface Crisis {
@@ -31,6 +31,13 @@ export const CrisisManagement: React.FC<CrisisManagementProps> = ({ user }) => {
   const [error, setError] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
 
+  // Filter & Search State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [deptFilter, setDeptFilter] = useState('All');
+  const [severityFilter, setSeverityFilter] = useState('All');
+  const [typeFilter, setTypeFilter] = useState('All');
+
   // New Crisis Form State
   const [type, setType] = useState('IT Outage');
   const [department, setDepartment] = useState('IT');
@@ -51,38 +58,39 @@ export const CrisisManagement: React.FC<CrisisManagementProps> = ({ user }) => {
   const departments = ['IT', 'Security', 'HR', 'Operations', 'Finance', 'Legal'];
 
   const allResourceNames = [
-    // IT Staff
     'Full Stack Developer',
     'Frontend Dev',
     'Backend Dev',
     'AWS Dev',
     'Network Engineer',
     'Cybersecurity Expert',
-    // Regular Employees
     'Peons',
     'Security Guard',
     'Electrician',
-    // Equipment
     'i7 Lenovo Laptops',
     'WiFi',
     'LAN Cables',
-    // Security Teams
     'Cyber Incident Response Team (CIRT)',
     'Physical Security Unit',
-    // Backup Systems
     'Cloud Disaster Recovery Backup Cluster',
     'Local NAS Backup',
-    // Emergency Funds
     'Emergency Contingency Reserve Fund',
     'Petty Cash Reserve',
-    // Infrastructure Resources
     'Backup Internet Gateway',
     'Mobile Support Workstation'
   ];
 
   const fetchCrises = async () => {
+    setLoading(true);
+    setError('');
     try {
-      const data = await api.getCrises();
+      const data = await api.getCrises({
+        status: statusFilter,
+        department: deptFilter,
+        severity: severityFilter,
+        type: typeFilter,
+        q: searchQuery
+      });
       setCrises(data);
     } catch (err) {
       console.error(err);
@@ -93,8 +101,21 @@ export const CrisisManagement: React.FC<CrisisManagementProps> = ({ user }) => {
   };
 
   useEffect(() => {
-    fetchCrises();
-  }, []);
+    const handler = setTimeout(() => {
+      fetchCrises();
+    }, 250);
+    return () => clearTimeout(handler);
+  }, [searchQuery, statusFilter, deptFilter, severityFilter, typeFilter]);
+
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setStatusFilter('All');
+    setDeptFilter('All');
+    setSeverityFilter('All');
+    setTypeFilter('All');
+  };
+
+  const hasActiveFilters = searchQuery !== '' || statusFilter !== 'All' || deptFilter !== 'All' || severityFilter !== 'All' || typeFilter !== 'All';
 
   const handleAddCrisis = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -195,7 +216,7 @@ export const CrisisManagement: React.FC<CrisisManagementProps> = ({ user }) => {
       )}
 
       {/* Control Buttons */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '18px', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Tactical Incidents List</h2>
         
         <div style={{ display: 'flex', gap: '12px' }}>
@@ -204,7 +225,7 @@ export const CrisisManagement: React.FC<CrisisManagementProps> = ({ user }) => {
             className="glass-btn-secondary"
             style={{ padding: '10px 16px', fontSize: '0.85rem' }}
           >
-            <RefreshCw size={14} />
+            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
             Refresh
           </button>
           
@@ -218,6 +239,90 @@ export const CrisisManagement: React.FC<CrisisManagementProps> = ({ user }) => {
           </button>
         </div>
       </div>
+
+      {/* Filter Control Bar */}
+      <div className="glass-panel" style={{
+        padding: '16px 20px',
+        marginBottom: '24px',
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '12px',
+        alignItems: 'center',
+        background: 'var(--bg-secondary)',
+        borderRadius: '16px',
+        border: '1px solid var(--border-primary)'
+      }}>
+        {/* Search Query Input */}
+        <div style={{ position: 'relative', flex: '1 1 220px' }}>
+          <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} />
+          <input
+            type="text"
+            className="glass-input"
+            style={{ paddingLeft: '38px', fontSize: '0.85rem', width: '100%' }}
+            placeholder="Search incident type, dept, description, ID..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <X size={14} onClick={() => setSearchQuery('')} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', color: 'var(--text-tertiary)' }} />
+          )}
+        </div>
+
+        {/* Status Filter */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Filter size={14} style={{ color: 'var(--text-tertiary)' }} />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="glass-input"
+            style={{ fontSize: '0.82rem', padding: '8px 12px' }}
+          >
+            <option value="All" style={{ color: '#000' }}>All Statuses</option>
+            <option value="Pending" style={{ color: '#000' }}>Pending</option>
+            <option value="Allocated" style={{ color: '#000' }}>Allocated</option>
+            <option value="Resolved" style={{ color: '#000' }}>Resolved</option>
+          </select>
+        </div>
+
+        {/* Department Filter */}
+        <select
+          value={deptFilter}
+          onChange={(e) => setDeptFilter(e.target.value)}
+          className="glass-input"
+          style={{ fontSize: '0.82rem', padding: '8px 12px' }}
+        >
+          <option value="All" style={{ color: '#000' }}>All Departments</option>
+          {departments.map(d => <option key={d} value={d} style={{ color: '#000' }}>{d}</option>)}
+        </select>
+
+        {/* Severity Filter */}
+        <select
+          value={severityFilter}
+          onChange={(e) => setSeverityFilter(e.target.value)}
+          className="glass-input"
+          style={{ fontSize: '0.82rem', padding: '8px 12px' }}
+        >
+          <option value="All" style={{ color: '#000' }}>All Severities</option>
+          <option value="4" style={{ color: '#000' }}>Critical (4)</option>
+          <option value="3" style={{ color: '#000' }}>High (3)</option>
+          <option value="2" style={{ color: '#000' }}>Medium (2)</option>
+          <option value="1" style={{ color: '#000' }}>Low (1)</option>
+        </select>
+
+        {/* Reset Button */}
+        {hasActiveFilters && (
+          <button
+            onClick={handleResetFilters}
+            className="glass-btn-secondary"
+            style={{ padding: '8px 14px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+          >
+            <RotateCcw size={13} />
+            Reset Filters
+          </button>
+        )}
+      </div>
+
+      {/* Add Crisis Modal Overlay */}
 
       {/* Add Crisis Modal Overlays */}
       {showAddForm && (
@@ -358,7 +463,10 @@ export const CrisisManagement: React.FC<CrisisManagementProps> = ({ user }) => {
 
       {/* Incident List Table */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '40px', fontWeight: 600 }}>Loading incident reports...</div>
+        <div className="glass-panel" style={{ textAlign: 'center', padding: '50px', fontWeight: 600, color: 'var(--text-secondary)' }}>
+          <RefreshCw size={24} className="animate-spin" style={{ margin: '0 auto 12px', color: 'var(--primary-light)' }} />
+          <div>Retrieving filtered incident telemetry...</div>
+        </div>
       ) : crises.length > 0 ? (
         <div className="enterprise-table-container">
           <table className="enterprise-table">
@@ -493,12 +601,17 @@ export const CrisisManagement: React.FC<CrisisManagementProps> = ({ user }) => {
           </table>
         </div>
       ) : (
-        <div className="glass-panel" style={{ textAlign: 'center', padding: '60px', color: 'var(--text-secondary)' }}>
+        <div className="glass-panel" style={{ textAlign: 'center', padding: '50px 20px', color: 'var(--text-secondary)' }}>
           <ShieldAlert size={48} style={{ color: 'var(--text-tertiary)', marginBottom: '16px' }} />
-          <h3>System Clear: No Active Crises</h3>
-          <p style={{ fontSize: '0.85rem', marginTop: '8px' }}>
-            All operations are currently running within optimal margins. Click 'Report New Crisis' to simulate an operational failure.
+          <h3>No Matching Incidents Found</h3>
+          <p style={{ fontSize: '0.85rem', marginTop: '8px', marginBottom: '20px' }}>
+            No incident reports match your current search and filter criteria. Try adjusting your parameters.
           </p>
+          {hasActiveFilters && (
+            <button onClick={handleResetFilters} className="glass-btn" style={{ padding: '10px 20px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              <RotateCcw size={14} /> Clear All Filters
+            </button>
+          )}
         </div>
       )}
     </div>

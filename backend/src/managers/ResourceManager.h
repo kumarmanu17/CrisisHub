@@ -25,5 +25,5 @@ public:
     bool updateResource(const Resource& r);
     bool deleteResource(const std::string& id);
     bool setAvailability(const std::string& id, bool available);
-    std::vector<Resource> searchResources(const std::string& query);
+    std::vector<Resource> searchResources(const std::string& query = "", const std::string& department = "", const std::string& type = "", const std::string& availableStr = "");
 };

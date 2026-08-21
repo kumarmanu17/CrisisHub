@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Briefcase, Plus, CheckCircle, Trash2, RefreshCw, X } from 'lucide-react';
+import { Briefcase, Plus, CheckCircle, Trash2, RefreshCw, X, Search, Filter, RotateCcw } from 'lucide-react';
 import { api } from '../services/api';
 
 interface Project {
@@ -20,6 +20,12 @@ export const Projects: React.FC = () => {
   const [error, setError] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
 
+  // Filter & Search State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [deptFilter, setDeptFilter] = useState('All');
+  const [resTypeFilter, setResTypeFilter] = useState('All');
+
   const [name, setName] = useState('New Workforce Project');
   const [department, setDepartment] = useState('Operations');
   const [resourceType, setResourceType] = useState('Full Stack Developer');
@@ -29,38 +35,38 @@ export const Projects: React.FC = () => {
   const departments = ['IT', 'Security', 'HR', 'Operations', 'Finance', 'Facilities'];
   
   const allResourceNames = [
-    // IT Staff
     'Full Stack Developer',
     'Frontend Dev',
     'Backend Dev',
     'AWS Dev',
     'Network Engineer',
     'Cybersecurity Expert',
-    // Regular Employees
     'Peons',
     'Security Guard',
     'Electrician',
-    // Equipment
     'i7 Lenovo Laptops',
     'WiFi',
     'LAN Cables',
-    // Security Teams
     'Cyber Incident Response Team (CIRT)',
     'Physical Security Unit',
-    // Backup Systems
     'Cloud Disaster Recovery Backup Cluster',
     'Local NAS Backup',
-    // Emergency Funds
     'Emergency Contingency Reserve Fund',
     'Petty Cash Reserve',
-    // Infrastructure Resources
     'Backup Internet Gateway',
     'Mobile Support Workstation'
   ];
 
   const fetchProjects = async () => {
+    setLoading(true);
+    setError('');
     try {
-      const data = await api.getProjects();
+      const data = await api.getProjects({
+        status: statusFilter,
+        department: deptFilter,
+        resourceType: resTypeFilter,
+        q: searchQuery
+      });
       setProjects(data);
     } catch (err) {
       console.error(err);
@@ -71,8 +77,20 @@ export const Projects: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchProjects();
-  }, []);
+    const handler = setTimeout(() => {
+      fetchProjects();
+    }, 250);
+    return () => clearTimeout(handler);
+  }, [searchQuery, statusFilter, deptFilter, resTypeFilter]);
+
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setStatusFilter('All');
+    setDeptFilter('All');
+    setResTypeFilter('All');
+  };
+
+  const hasActiveFilters = searchQuery !== '' || statusFilter !== 'All' || deptFilter !== 'All' || resTypeFilter !== 'All';
 
   const resetForm = () => {
     setName('New Workforce Project');
@@ -153,11 +171,11 @@ export const Projects: React.FC = () => {
         </div>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '18px', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Projects Assignment Board</h2>
         <div style={{ display: 'flex', gap: '12px' }}>
           <button onClick={fetchProjects} className="glass-btn-secondary" style={{ padding: '10px 16px', fontSize: '0.85rem' }}>
-            <RefreshCw size={14} />
+            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
             Refresh
           </button>
           <button onClick={() => { resetForm(); setShowAddForm(true); }} className="glass-btn" style={{ padding: '10px 18px', fontSize: '0.85rem' }}>
@@ -165,6 +183,84 @@ export const Projects: React.FC = () => {
             Add Project
           </button>
         </div>
+      </div>
+
+      {/* Filter Control Bar */}
+      <div className="glass-panel" style={{
+        padding: '16px 20px',
+        marginBottom: '24px',
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '12px',
+        alignItems: 'center',
+        background: 'var(--bg-secondary)',
+        borderRadius: '16px',
+        border: '1px solid var(--border-primary)'
+      }}>
+        {/* Search Query Input */}
+        <div style={{ position: 'relative', flex: '1 1 220px' }}>
+          <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} />
+          <input
+            type="text"
+            className="glass-input"
+            style={{ paddingLeft: '38px', fontSize: '0.85rem', width: '100%' }}
+            placeholder="Search projects by name, dept, resource..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <X size={14} onClick={() => setSearchQuery('')} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', color: 'var(--text-tertiary)' }} />
+          )}
+        </div>
+
+        {/* Status Filter */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Filter size={14} style={{ color: 'var(--text-tertiary)' }} />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="glass-input"
+            style={{ fontSize: '0.82rem', padding: '8px 12px' }}
+          >
+            <option value="All" style={{ color: '#000' }}>All Statuses</option>
+            <option value="Allocated" style={{ color: '#000' }}>Allocated</option>
+            <option value="Completed" style={{ color: '#000' }}>Completed</option>
+          </select>
+        </div>
+
+        {/* Department Filter */}
+        <select
+          value={deptFilter}
+          onChange={(e) => setDeptFilter(e.target.value)}
+          className="glass-input"
+          style={{ fontSize: '0.82rem', padding: '8px 12px' }}
+        >
+          <option value="All" style={{ color: '#000' }}>All Departments</option>
+          {departments.map(d => <option key={d} value={d} style={{ color: '#000' }}>{d}</option>)}
+        </select>
+
+        {/* Resource Type Filter */}
+        <select
+          value={resTypeFilter}
+          onChange={(e) => setResTypeFilter(e.target.value)}
+          className="glass-input"
+          style={{ fontSize: '0.82rem', padding: '8px 12px' }}
+        >
+          <option value="All" style={{ color: '#000' }}>All Resource Types</option>
+          {allResourceNames.map(r => <option key={r} value={r} style={{ color: '#000' }}>{r}</option>)}
+        </select>
+
+        {/* Reset Button */}
+        {hasActiveFilters && (
+          <button
+            onClick={handleResetFilters}
+            className="glass-btn-secondary"
+            style={{ padding: '8px 14px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+          >
+            <RotateCcw size={13} />
+            Reset Filters
+          </button>
+        )}
       </div>
 
       {showAddForm && (
@@ -225,7 +321,10 @@ export const Projects: React.FC = () => {
       )}
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '40px', fontWeight: 600 }}>Loading projects...</div>
+        <div className="glass-panel" style={{ textAlign: 'center', padding: '50px', fontWeight: 600, color: 'var(--text-secondary)' }}>
+          <RefreshCw size={24} className="animate-spin" style={{ margin: '0 auto 12px', color: 'var(--primary-light)' }} />
+          <div>Querying project assignments from backend...</div>
+        </div>
       ) : projects.length > 0 ? (
         <div className="enterprise-table-container">
           <table className="enterprise-table">
@@ -324,12 +423,17 @@ export const Projects: React.FC = () => {
           </table>
         </div>
       ) : (
-        <div className="glass-panel" style={{ textAlign: 'center', padding: '60px', color: 'var(--text-secondary)' }}>
+        <div className="glass-panel" style={{ textAlign: 'center', padding: '50px 20px', color: 'var(--text-secondary)' }}>
           <Briefcase size={48} style={{ color: 'var(--text-tertiary)', marginBottom: '16px' }} />
-          <h3>No Projects Registered</h3>
-          <p style={{ fontSize: '0.85rem', marginTop: '8px' }}>
-            Create a project and reserve resource units from the registry. Completed projects return those units automatically.
+          <h3>No Matching Projects Found</h3>
+          <p style={{ fontSize: '0.85rem', marginTop: '8px', marginBottom: '20px' }}>
+            No registered projects match your current search and filter criteria. Try adjusting your parameters.
           </p>
+          {hasActiveFilters && (
+            <button onClick={handleResetFilters} className="glass-btn" style={{ padding: '10px 20px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              <RotateCcw size={14} /> Clear All Filters
+            </button>
+          )}
         </div>
       )}
     </div>

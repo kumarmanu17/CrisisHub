@@ -25,8 +25,19 @@ export const api = {
   },
 
   // Crises Management
-  async getCrises() {
-    const res = await fetch(`${API_BASE_URL}/crises`, {
+  async getCrises(filters?: { status?: string; department?: string; severity?: string | number; type?: string; q?: string }) {
+    const params = new URLSearchParams();
+    if (filters) {
+      if (filters.status && filters.status !== 'All') params.append('status', filters.status);
+      if (filters.department && filters.department !== 'All') params.append('department', filters.department);
+      if (filters.severity && filters.severity !== 'All' && String(filters.severity) !== '0') params.append('severity', String(filters.severity));
+      if (filters.type && filters.type !== 'All') params.append('type', filters.type);
+      if (filters.q && filters.q.trim()) params.append('q', filters.q.trim());
+    }
+    const queryString = params.toString();
+    const url = queryString ? `${API_BASE_URL}/crises?${queryString}` : `${API_BASE_URL}/crises`;
+
+    const res = await fetch(url, {
       headers: getHeaders()
     });
     if (!res.ok) throw new Error('Failed to fetch crises');
@@ -69,8 +80,18 @@ export const api = {
   },
 
   // Projects Management
-  async getProjects() {
-    const res = await fetch(`${API_BASE_URL}/projects`, {
+  async getProjects(filters?: { status?: string; department?: string; resourceType?: string; q?: string }) {
+    const params = new URLSearchParams();
+    if (filters) {
+      if (filters.status && filters.status !== 'All') params.append('status', filters.status);
+      if (filters.department && filters.department !== 'All') params.append('department', filters.department);
+      if (filters.resourceType && filters.resourceType !== 'All') params.append('resourceType', filters.resourceType);
+      if (filters.q && filters.q.trim()) params.append('q', filters.q.trim());
+    }
+    const queryString = params.toString();
+    const url = queryString ? `${API_BASE_URL}/projects?${queryString}` : `${API_BASE_URL}/projects`;
+
+    const res = await fetch(url, {
       headers: getHeaders()
     });
     if (!res.ok) throw new Error('Failed to fetch projects');
@@ -112,8 +133,17 @@ export const api = {
   },
 
   // Resource Management
-  async getResources(query = '') {
-    const url = query ? `${API_BASE_URL}/resources?q=${encodeURIComponent(query)}` : `${API_BASE_URL}/resources`;
+  async getResources(query = '', filters?: { department?: string; type?: string; available?: string }) {
+    const params = new URLSearchParams();
+    if (query && query.trim()) params.append('q', query.trim());
+    if (filters) {
+      if (filters.department && filters.department !== 'All') params.append('department', filters.department);
+      if (filters.type && filters.type !== 'All') params.append('type', filters.type);
+      if (filters.available && filters.available !== 'All') params.append('available', filters.available);
+    }
+    const queryString = params.toString();
+    const url = queryString ? `${API_BASE_URL}/resources?${queryString}` : `${API_BASE_URL}/resources`;
+
     const res = await fetch(url, {
       headers: getHeaders()
     });

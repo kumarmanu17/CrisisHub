@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Cpu, Plus, Edit2, Trash2, Search, X } from 'lucide-react';
+import { Cpu, Plus, Edit2, Trash2, Search, X, Filter, RotateCcw, RefreshCw } from 'lucide-react';
 import { api } from '../services/api';
 
 interface Resource {
@@ -17,6 +17,9 @@ export const ResourceManagement: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [deptFilter, setDeptFilter] = useState('All');
+  const [typeFilter, setTypeFilter] = useState('All');
+  const [availFilter, setAvailFilter] = useState('All');
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingResource, setEditingResource] = useState<Resource | null>(null);
 
@@ -87,9 +90,15 @@ export const ResourceManagement: React.FC = () => {
 
   const departments = ['IT', 'Security', 'HR', 'Operations', 'Finance', 'Facilities'];
 
-  const fetchResources = async (query = '') => {
+  const fetchResources = async () => {
+    setLoading(true);
+    setError('');
     try {
-      const data = await api.getResources(query);
+      const data = await api.getResources(searchQuery, {
+        department: deptFilter,
+        type: typeFilter,
+        available: availFilter
+      });
       setResources(data);
     } catch (err) {
       console.error(err);
@@ -100,15 +109,27 @@ export const ResourceManagement: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchResources(searchQuery);
-  }, [searchQuery]);
+    const handler = setTimeout(() => {
+      fetchResources();
+    }, 250);
+    return () => clearTimeout(handler);
+  }, [searchQuery, deptFilter, typeFilter, availFilter]);
 
   // Listen for global resource updates (e.g. after allocation or resolve)
   useEffect(() => {
-    const handler = () => fetchResources(searchQuery);
+    const handler = () => fetchResources();
     window.addEventListener('resourcesUpdated', handler);
     return () => window.removeEventListener('resourcesUpdated', handler);
-  }, [searchQuery]);
+  }, [searchQuery, deptFilter, typeFilter, availFilter]);
+
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setDeptFilter('All');
+    setTypeFilter('All');
+    setAvailFilter('All');
+  };
+
+  const hasActiveFilters = searchQuery !== '' || deptFilter !== 'All' || typeFilter !== 'All' || availFilter !== 'All';
 
   const handleAddResource = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,7 +140,7 @@ export const ResourceManagement: React.FC = () => {
 
     try {
       await api.createResource({ name, type, capacity, department, cost });
-      fetchResources(searchQuery);
+      fetchResources();
       setShowAddForm(false);
       resetForm();
     } catch (err: any) {
@@ -140,7 +161,7 @@ export const ResourceManagement: React.FC = () => {
         cost,
         available
       });
-      fetchResources(searchQuery);
+      fetchResources();
       setEditingResource(null);
       resetForm();
     } catch (err: any) {
@@ -152,7 +173,7 @@ export const ResourceManagement: React.FC = () => {
     if (!window.confirm('Are you sure you want to delete this resource asset from the system registry?')) return;
     try {
       await api.deleteResource(id);
-      fetchResources(searchQuery);
+      fetchResources();
     } catch (err) {
       console.error(err);
       setError('Failed to delete resource.');
@@ -200,30 +221,20 @@ export const ResourceManagement: React.FC = () => {
         </div>
       )}
 
-      {/* Registry Controls */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '20px', marginBottom: '24px', alignItems: 'center' }}>
-        {/* Search */}
-        <div style={{ position: 'relative' }}>
-          <Search size={18} style={{
-            position: 'absolute',
-            left: '14px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            color: 'var(--text-tertiary)',
-            pointerEvents: 'none'
-          }} />
-          <input
-            type="text"
-            className="glass-input"
-            placeholder="Search resources by name, type, or department..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ paddingLeft: '44px' }}
-          />
-        </div>
+      {/* Registry Controls Header & Filters */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '18px', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Corporate Resource Assets</h2>
 
-        {/* Buttons */}
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button 
+            onClick={fetchResources}
+            className="glass-btn-secondary"
+            style={{ padding: '10px 16px', fontSize: '0.85rem' }}
+          >
+            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+            Refresh
+          </button>
+
           <button
             onClick={() => { resetForm(); setShowAddForm(true); }}
             className="glass-btn"
@@ -233,6 +244,84 @@ export const ResourceManagement: React.FC = () => {
             Register Asset
           </button>
         </div>
+      </div>
+
+      {/* Filter Control Bar */}
+      <div className="glass-panel" style={{
+        padding: '16px 20px',
+        marginBottom: '24px',
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '12px',
+        alignItems: 'center',
+        background: 'var(--bg-secondary)',
+        borderRadius: '16px',
+        border: '1px solid var(--border-primary)'
+      }}>
+        {/* Search Query Input */}
+        <div style={{ position: 'relative', flex: '1 1 220px' }}>
+          <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} />
+          <input
+            type="text"
+            className="glass-input"
+            style={{ paddingLeft: '38px', fontSize: '0.85rem', width: '100%' }}
+            placeholder="Search resources by name, type, or dept..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <X size={14} onClick={() => setSearchQuery('')} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', color: 'var(--text-tertiary)' }} />
+          )}
+        </div>
+
+        {/* Department Filter */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Filter size={14} style={{ color: 'var(--text-tertiary)' }} />
+          <select
+            value={deptFilter}
+            onChange={(e) => setDeptFilter(e.target.value)}
+            className="glass-input"
+            style={{ fontSize: '0.82rem', padding: '8px 12px' }}
+          >
+            <option value="All" style={{ color: '#000' }}>All Departments</option>
+            {departments.map(d => <option key={d} value={d} style={{ color: '#000' }}>{d}</option>)}
+          </select>
+        </div>
+
+        {/* Resource Type Filter */}
+        <select
+          value={typeFilter}
+          onChange={(e) => setTypeFilter(e.target.value)}
+          className="glass-input"
+          style={{ fontSize: '0.82rem', padding: '8px 12px' }}
+        >
+          <option value="All" style={{ color: '#000' }}>All Resource Types</option>
+          {resourceTypes.map(t => <option key={t} value={t} style={{ color: '#000' }}>{t}</option>)}
+        </select>
+
+        {/* Availability Filter */}
+        <select
+          value={availFilter}
+          onChange={(e) => setAvailFilter(e.target.value)}
+          className="glass-input"
+          style={{ fontSize: '0.82rem', padding: '8px 12px' }}
+        >
+          <option value="All" style={{ color: '#000' }}>All Availability</option>
+          <option value="Available" style={{ color: '#000' }}>Available</option>
+          <option value="false" style={{ color: '#000' }}>Deployed / In Use</option>
+        </select>
+
+        {/* Reset Button */}
+        {hasActiveFilters && (
+          <button
+            onClick={handleResetFilters}
+            className="glass-btn-secondary"
+            style={{ padding: '8px 14px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+          >
+            <RotateCcw size={13} />
+            Reset Filters
+          </button>
+        )}
       </div>
 
       {/* Add / Edit Resource Modal */}
@@ -356,7 +445,10 @@ export const ResourceManagement: React.FC = () => {
 
       {/* Resources Table */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '40px', fontWeight: 600 }}>Querying system asset registers...</div>
+        <div className="glass-panel" style={{ textAlign: 'center', padding: '50px', fontWeight: 600, color: 'var(--text-secondary)' }}>
+          <RefreshCw size={24} className="animate-spin" style={{ margin: '0 auto 12px', color: 'var(--primary-light)' }} />
+          <div>Querying system asset registers...</div>
+        </div>
       ) : resources.length > 0 ? (
         <div className="enterprise-table-container">
           <table className="enterprise-table">
@@ -458,12 +550,17 @@ export const ResourceManagement: React.FC = () => {
           </table>
         </div>
       ) : (
-        <div className="glass-panel" style={{ textAlign: 'center', padding: '60px', color: 'var(--text-secondary)' }}>
+        <div className="glass-panel" style={{ textAlign: 'center', padding: '50px 20px', color: 'var(--text-secondary)' }}>
           <Cpu size={48} style={{ color: 'var(--text-tertiary)', marginBottom: '16px' }} />
           <h3>Registry Empty: No Resources Found</h3>
-          <p style={{ fontSize: '0.85rem', marginTop: '8px' }}>
-            No corporate assets match your current search query. Register new assets using the button above.
+          <p style={{ fontSize: '0.85rem', marginTop: '8px', marginBottom: '20px' }}>
+            No corporate assets match your current search and filter criteria. Try adjusting your parameters.
           </p>
+          {hasActiveFilters && (
+            <button onClick={handleResetFilters} className="glass-btn" style={{ padding: '10px 20px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              <RotateCcw size={14} /> Clear All Filters
+            </button>
+          )}
         </div>
       )}
     </div>

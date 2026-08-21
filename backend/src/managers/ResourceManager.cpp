@@ -277,26 +277,35 @@ bool ResourceManager::setAvailability(const std::string& id, bool available) {
     return false;
 }
 
-std::vector<Resource> ResourceManager::searchResources(const std::string& query) {
-    if (query.empty()) return resources;
+std::vector<Resource> ResourceManager::searchResources(const std::string& query, const std::string& department, const std::string& type, const std::string& availableStr) {
     std::vector<Resource> results;
     std::string lowerQuery = query;
     std::transform(lowerQuery.begin(), lowerQuery.end(), lowerQuery.begin(), ::tolower);
 
     for (const auto& r : resources) {
-        std::string nameLower = r.name;
-        std::string typeLower = r.type;
-        std::string deptLower = r.department;
-        std::transform(nameLower.begin(), nameLower.end(), nameLower.begin(), ::tolower);
-        std::transform(typeLower.begin(), typeLower.end(), typeLower.begin(), ::tolower);
-        std::transform(deptLower.begin(), deptLower.end(), deptLower.begin(), ::tolower);
-
-        if (nameLower.find(lowerQuery) != std::string::npos ||
-            typeLower.find(lowerQuery) != std::string::npos ||
-            deptLower.find(lowerQuery) != std::string::npos ||
-            r.id.find(query) != std::string::npos) {
-            results.push_back(r);
+        if (!department.empty() && department != "All" && r.department != department) continue;
+        if (!type.empty() && type != "All" && r.type != type) continue;
+        if (!availableStr.empty() && availableStr != "All") {
+            bool reqAvail = (availableStr == "true" || availableStr == "Available" || availableStr == "1");
+            if (r.available != reqAvail) continue;
         }
+
+        if (!lowerQuery.empty()) {
+            std::string nameLower = r.name;
+            std::string typeLower = r.type;
+            std::string deptLower = r.department;
+            std::transform(nameLower.begin(), nameLower.end(), nameLower.begin(), ::tolower);
+            std::transform(typeLower.begin(), typeLower.end(), typeLower.begin(), ::tolower);
+            std::transform(deptLower.begin(), deptLower.end(), deptLower.begin(), ::tolower);
+
+            if (nameLower.find(lowerQuery) == std::string::npos &&
+                typeLower.find(lowerQuery) == std::string::npos &&
+                deptLower.find(lowerQuery) == std::string::npos &&
+                r.id.find(query) == std::string::npos) {
+                continue;
+            }
+        }
+        results.push_back(r);
     }
     return results;
 }

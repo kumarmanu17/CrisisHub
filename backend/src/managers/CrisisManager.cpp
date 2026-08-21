@@ -104,6 +104,40 @@ std::vector<Crisis> CrisisManager::getAllCrises() {
     return crises;
 }
 
+std::vector<Crisis> CrisisManager::searchAndFilterCrises(const std::string& status, const std::string& department, int severity, const std::string& type, const std::string& query) {
+    std::vector<Crisis> results;
+    std::string lowerQuery = query;
+    std::transform(lowerQuery.begin(), lowerQuery.end(), lowerQuery.begin(), ::tolower);
+
+    for (const auto& c : crises) {
+        if (!status.empty() && status != "All" && c.status != status) continue;
+        if (!department.empty() && department != "All" && c.department != department) continue;
+        if (severity > 0 && c.severity != severity) continue;
+        if (!type.empty() && type != "All" && c.type != type) continue;
+
+        if (!lowerQuery.empty()) {
+            std::string typeLower = c.type;
+            std::string deptLower = c.department;
+            std::string descLower = c.description;
+            std::string resTypeLower = c.requiredResourceType;
+            std::transform(typeLower.begin(), typeLower.end(), typeLower.begin(), ::tolower);
+            std::transform(deptLower.begin(), deptLower.end(), deptLower.begin(), ::tolower);
+            std::transform(descLower.begin(), descLower.end(), descLower.begin(), ::tolower);
+            std::transform(resTypeLower.begin(), resTypeLower.end(), resTypeLower.begin(), ::tolower);
+
+            bool matchesQuery = (typeLower.find(lowerQuery) != std::string::npos ||
+                                 deptLower.find(lowerQuery) != std::string::npos ||
+                                 descLower.find(lowerQuery) != std::string::npos ||
+                                 resTypeLower.find(lowerQuery) != std::string::npos ||
+                                 c.id.find(query) != std::string::npos);
+            if (!matchesQuery) continue;
+        }
+
+        results.push_back(c);
+    }
+    return results;
+}
+
 Crisis CrisisManager::getCrisisById(const std::string& id) {
     for (const auto& c : crises) {
         if (c.id == id) return c;

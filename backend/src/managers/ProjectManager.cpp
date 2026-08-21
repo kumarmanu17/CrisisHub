@@ -65,6 +65,39 @@ std::vector<Project> ProjectManager::getAllProjects() {
     return projects;
 }
 
+std::vector<Project> ProjectManager::searchAndFilterProjects(const std::string& status, const std::string& department, const std::string& resourceType, const std::string& query) {
+    std::vector<Project> results;
+    std::string lowerQuery = query;
+    std::transform(lowerQuery.begin(), lowerQuery.end(), lowerQuery.begin(), ::tolower);
+
+    for (const auto& project : projects) {
+        if (!status.empty() && status != "All" && project.status != status) continue;
+        if (!department.empty() && department != "All" && project.department != department) continue;
+        if (!resourceType.empty() && resourceType != "All" && project.resourceType != resourceType) continue;
+
+        if (!lowerQuery.empty()) {
+            std::string nameLower = project.name;
+            std::string deptLower = project.department;
+            std::string resTypeLower = project.resourceType;
+            std::string descLower = project.description;
+            std::transform(nameLower.begin(), nameLower.end(), nameLower.begin(), ::tolower);
+            std::transform(deptLower.begin(), deptLower.end(), deptLower.begin(), ::tolower);
+            std::transform(resTypeLower.begin(), resTypeLower.end(), resTypeLower.begin(), ::tolower);
+            std::transform(descLower.begin(), descLower.end(), descLower.begin(), ::tolower);
+
+            bool matchesQuery = (nameLower.find(lowerQuery) != std::string::npos ||
+                                 deptLower.find(lowerQuery) != std::string::npos ||
+                                 resTypeLower.find(lowerQuery) != std::string::npos ||
+                                 descLower.find(lowerQuery) != std::string::npos ||
+                                 project.id.find(query) != std::string::npos);
+            if (!matchesQuery) continue;
+        }
+
+        results.push_back(project);
+    }
+    return results;
+}
+
 Project ProjectManager::getProjectById(const std::string& id) {
     for (const auto& project : projects) {
         if (project.id == id) return project;

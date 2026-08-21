@@ -364,7 +364,33 @@ const server = http.createServer(async (req, res) => {
 
     // 2. GET /api/crises
     if (req.method === 'GET' && pathname === '/api/crises') {
-      sendJson(res, 200, state.crises.map(normalizeCrisisRecord));
+      const statusFilter = (url.searchParams.get('status') || '').trim();
+      const deptFilter = (url.searchParams.get('department') || '').trim();
+      const severityFilter = Number(url.searchParams.get('severity') || 0);
+      const typeFilter = (url.searchParams.get('type') || '').trim();
+      const query = (url.searchParams.get('q') || '').toLowerCase().trim();
+
+      let results = state.crises.map(normalizeCrisisRecord);
+
+      if (statusFilter && statusFilter !== 'All') {
+        results = results.filter((c) => c.status === statusFilter);
+      }
+      if (deptFilter && deptFilter !== 'All') {
+        results = results.filter((c) => c.department === deptFilter);
+      }
+      if (severityFilter > 0) {
+        results = results.filter((c) => Number(c.severity) === severityFilter);
+      }
+      if (typeFilter && typeFilter !== 'All') {
+        results = results.filter((c) => c.type === typeFilter);
+      }
+      if (query) {
+        results = results.filter((c) =>
+          [c.type, c.department, c.description, c.requiredResourceType, c.id].some((f) => String(f || '').toLowerCase().includes(query))
+        );
+      }
+
+      sendJson(res, 200, results);
       return;
     }
 
@@ -496,9 +522,28 @@ const server = http.createServer(async (req, res) => {
     // 6. GET /api/resources
     if (req.method === 'GET' && pathname === '/api/resources') {
       const query = (url.searchParams.get('q') || '').toLowerCase().trim();
-      const resources = query
-        ? state.resources.filter((resource) => [resource.name, resource.type, resource.department].some((field) => String(field || '').toLowerCase().includes(query)))
-        : state.resources;
+      const deptFilter = (url.searchParams.get('department') || '').trim();
+      const typeFilter = (url.searchParams.get('type') || '').trim();
+      const availFilter = (url.searchParams.get('available') || '').trim();
+
+      let resources = state.resources;
+
+      if (deptFilter && deptFilter !== 'All') {
+        resources = resources.filter((r) => r.department === deptFilter);
+      }
+      if (typeFilter && typeFilter !== 'All') {
+        resources = resources.filter((r) => r.type === typeFilter);
+      }
+      if (availFilter && availFilter !== 'All') {
+        const reqAvail = availFilter === 'true' || availFilter === 'Available' || availFilter === '1';
+        resources = resources.filter((r) => Boolean(r.available) === reqAvail);
+      }
+      if (query) {
+        resources = resources.filter((r) =>
+          [r.name, r.type, r.department, r.id].some((f) => String(f || '').toLowerCase().includes(query))
+        );
+      }
+
       sendJson(res, 200, resources);
       return;
     }
@@ -635,7 +680,29 @@ const server = http.createServer(async (req, res) => {
 
     // 10. GET /api/projects
     if (req.method === 'GET' && pathname === '/api/projects') {
-      sendJson(res, 200, state.projects.map(normalizeProjectRecord));
+      const statusFilter = (url.searchParams.get('status') || '').trim();
+      const deptFilter = (url.searchParams.get('department') || '').trim();
+      const resTypeFilter = (url.searchParams.get('resourceType') || '').trim();
+      const query = (url.searchParams.get('q') || '').toLowerCase().trim();
+
+      let results = state.projects.map(normalizeProjectRecord);
+
+      if (statusFilter && statusFilter !== 'All') {
+        results = results.filter((p) => p.status === statusFilter);
+      }
+      if (deptFilter && deptFilter !== 'All') {
+        results = results.filter((p) => p.department === deptFilter);
+      }
+      if (resTypeFilter && resTypeFilter !== 'All') {
+        results = results.filter((p) => p.resourceType === resTypeFilter);
+      }
+      if (query) {
+        results = results.filter((p) =>
+          [p.name, p.department, p.resourceType, p.description, p.id].some((f) => String(f || '').toLowerCase().includes(query))
+        );
+      }
+
+      sendJson(res, 200, results);
       return;
     }
 
