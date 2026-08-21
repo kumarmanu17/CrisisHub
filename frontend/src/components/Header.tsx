@@ -39,7 +39,7 @@ export const Header: React.FC<HeaderProps> = ({ currentTab, theme, toggleTheme }
 
   return (
     <header className="glass-panel" style={{
-      padding: '20px 24px',
+      padding: '20px 28px',
       borderRadius: '16px',
       display: 'flex',
       alignItems: 'center',
@@ -48,24 +48,32 @@ export const Header: React.FC<HeaderProps> = ({ currentTab, theme, toggleTheme }
       zIndex: 5
     }}>
       <div>
-        <h1 style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.5px' }}>
+        <h1 style={{ 
+          fontSize: '1.65rem', 
+          fontWeight: 800, 
+          letterSpacing: '-0.5px',
+          background: 'linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent'
+        }}>
           {getTabTitle(currentTab)}
         </h1>
-        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px', fontWeight: 500 }}>
           {getTabSubtitle(currentTab)}
         </p>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
         {/* Date Display */}
         <div style={{ 
-          fontSize: '0.85rem', 
+          fontSize: '0.82rem', 
           fontWeight: 600, 
           color: 'var(--text-secondary)',
           background: 'var(--bg-secondary)',
           padding: '8px 16px',
           borderRadius: '20px',
-          border: '1px solid var(--border-primary)'
+          border: '1px solid var(--border-primary)',
+          transition: 'transform var(--transition-normal), border-color var(--transition-normal)'
         }}>
           {formattedDate}
         </div>
@@ -75,21 +83,34 @@ export const Header: React.FC<HeaderProps> = ({ currentTab, theme, toggleTheme }
           display: 'flex', 
           alignItems: 'center', 
           gap: '6px',
-          background: 'rgba(16, 185, 129, 0.1)',
+          background: 'rgba(16, 185, 129, 0.12)',
           color: 'var(--color-low)',
           padding: '8px 16px',
           borderRadius: '20px',
-          fontSize: '0.8rem',
+          fontSize: '0.78rem',
           fontWeight: 700,
-          border: '1px solid rgba(16, 185, 129, 0.2)'
+          letterSpacing: '0.04em',
+          border: '1px solid rgba(16, 185, 129, 0.3)',
+          transition: 'transform var(--transition-normal), box-shadow var(--transition-normal)'
         }}>
-          <Link size={14} />
+          <span className="alert-pulse-container" style={{ width: '8px', height: '8px', backgroundColor: 'var(--color-low)' }}>
+            <span className="alert-pulse" style={{ backgroundColor: 'var(--color-low)' }}></span>
+          </span>
+          <Link size={13} style={{ marginLeft: '2px' }} />
           BACKEND ACTIVE
         </div>
 
         {/* Theme Toggle */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Sun size={18} style={{ color: theme === 'light' ? 'var(--primary)' : 'var(--text-tertiary)' }} />
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '8px',
+          background: 'var(--bg-secondary)',
+          padding: '6px 12px',
+          borderRadius: '20px',
+          border: '1px solid var(--border-primary)'
+        }}>
+          <Sun size={17} style={{ color: theme === 'light' ? 'var(--primary)' : 'var(--text-tertiary)', transition: 'color var(--transition-normal)' }} />
           <label className="theme-switch">
             <input 
               type="checkbox" 
@@ -98,7 +119,7 @@ export const Header: React.FC<HeaderProps> = ({ currentTab, theme, toggleTheme }
             />
             <span className="slider"></span>
           </label>
-          <Moon size={18} style={{ color: theme === 'dark' ? 'var(--primary)' : 'var(--text-tertiary)' }} />
+          <Moon size={17} style={{ color: theme === 'dark' ? 'var(--primary)' : 'var(--text-tertiary)', transition: 'color var(--transition-normal)' }} />
         </div>
       </div>
     </header>

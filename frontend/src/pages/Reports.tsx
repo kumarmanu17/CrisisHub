@@ -60,7 +60,7 @@ export const Reports: React.FC = () => {
       )}
 
       {/* Header controls */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', alignItems: 'center' }} className="no-print">
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }} className="no-print">
         <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Audit Logs & Tactical Performance</h2>
         <div style={{ display: 'flex', gap: '12px' }}>
           <button 
@@ -84,12 +84,12 @@ export const Reports: React.FC = () => {
       </div>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '40px' }}>Loading audit files...</div>
+        <div style={{ textAlign: 'center', padding: '40px', fontWeight: 600 }}>Loading audit files...</div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
           
           {/* Section 1: Department performance scorecard */}
-          <div className="glass-panel" style={{ padding: '24px' }}>
+          <div className="glass-panel" style={{ padding: '28px' }}>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <CheckCircle2 size={18} style={{ color: 'var(--color-low)' }} />
               Departmental Operational Scorecard

@@ -153,7 +153,7 @@ export const Projects: React.FC = () => {
         </div>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Projects Assignment Board</h2>
         <div style={{ display: 'flex', gap: '12px' }}>
           <button onClick={fetchProjects} className="glass-btn-secondary" style={{ padding: '10px 16px', fontSize: '0.85rem' }}>
@@ -171,14 +171,14 @@ export const Projects: React.FC = () => {
         <div style={{
           position: 'fixed',
           top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0, 0, 0, 0.4)',
-          backdropFilter: 'blur(4px)',
+          background: 'rgba(0, 0, 0, 0.5)',
+          backdropFilter: 'blur(6px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 100
         }}>
-          <div className="glass-panel animate-slide" style={{ width: '100%', maxWidth: '560px', padding: '32px', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div className="glass-panel animate-slide" style={{ width: '100%', maxWidth: '560px', padding: '32px', maxHeight: '90vh', overflowY: 'auto', borderRadius: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Assign Project Resources</h3>
               <X size={20} onClick={() => setShowAddForm(false)} style={{ cursor: 'pointer', color: 'var(--text-secondary)' }} />
@@ -225,7 +225,7 @@ export const Projects: React.FC = () => {
       )}
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '40px' }}>Loading projects...</div>
+        <div style={{ textAlign: 'center', padding: '40px', fontWeight: 600 }}>Loading projects...</div>
       ) : projects.length > 0 ? (
         <div className="enterprise-table-container">
           <table className="enterprise-table">
@@ -269,7 +269,7 @@ export const Projects: React.FC = () => {
                       {project.status !== 'Completed' && (
                         <button
                           onClick={() => handleCompleteProject(project.id)}
-                          className="glass-btn"
+                          className="glass-btn-secondary"
                           style={{
                             padding: '6px 12px',
                             fontSize: '0.75rem',
@@ -277,26 +277,43 @@ export const Projects: React.FC = () => {
                             background: 'var(--color-low-bg)',
                             color: 'var(--color-low)',
                             border: '1px solid rgba(16, 185, 129, 0.3)',
-                            boxShadow: 'none'
+                            cursor: 'pointer'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(16, 185, 129, 0.25)';
+                            e.currentTarget.style.transform = 'translateY(-1px)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'var(--color-low-bg)';
+                            e.currentTarget.style.transform = 'translateY(0px)';
                           }}
                         >
-                          <CheckCircle size={12} />
+                          <CheckCircle size={13} />
                           Complete
                         </button>
                       )}
                       <button
                         onClick={() => handleDeleteProject(project.id)}
-                        className="glass-btn"
+                        className="glass-btn-secondary"
                         style={{
                           padding: '6px 12px',
                           fontSize: '0.75rem',
                           borderRadius: '6px',
                           background: 'transparent',
                           color: 'var(--color-critical)',
-                          border: '1px solid rgba(244, 63, 94, 0.12)'
+                          border: '1px solid rgba(244, 63, 94, 0.2)',
+                          cursor: 'pointer'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'var(--color-critical-bg)';
+                          e.currentTarget.style.transform = 'translateY(-1px)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'transparent';
+                          e.currentTarget.style.transform = 'translateY(0px)';
                         }}
                       >
-                        <Trash2 size={12} />
+                        <Trash2 size={13} />
                         Delete
                       </button>
                     </div>

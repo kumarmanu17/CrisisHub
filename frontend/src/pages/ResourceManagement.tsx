@@ -209,7 +209,8 @@ export const ResourceManagement: React.FC = () => {
             left: '14px',
             top: '50%',
             transform: 'translateY(-50%)',
-            color: 'var(--text-tertiary)'
+            color: 'var(--text-tertiary)',
+            pointerEvents: 'none'
           }} />
           <input
             type="text"
@@ -239,8 +240,8 @@ export const ResourceManagement: React.FC = () => {
         <div style={{
           position: 'fixed',
           top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0, 0, 0, 0.4)',
-          backdropFilter: 'blur(4px)',
+          background: 'rgba(0, 0, 0, 0.5)',
+          backdropFilter: 'blur(6px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -251,7 +252,8 @@ export const ResourceManagement: React.FC = () => {
             maxWidth: '520px',
             padding: '32px',
             maxHeight: '90vh',
-            overflowY: 'auto'
+            overflowY: 'auto',
+            borderRadius: '20px'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>
@@ -354,7 +356,7 @@ export const ResourceManagement: React.FC = () => {
 
       {/* Resources Table */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '40px' }}>Querying system asset registers...</div>
+        <div style={{ textAlign: 'center', padding: '40px', fontWeight: 600 }}>Querying system asset registers...</div>
       ) : resources.length > 0 ? (
         <div className="enterprise-table-container">
           <table className="enterprise-table">
@@ -399,34 +401,54 @@ export const ResourceManagement: React.FC = () => {
                         onClick={() => openEditModal(r)}
                         className="glass-btn-secondary"
                         style={{
-                          padding: '6px',
-                          borderRadius: '6px',
+                          padding: '8px',
+                          borderRadius: '8px',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           color: 'var(--primary)',
                           border: '1px solid var(--border-primary)',
-                          cursor: 'pointer'
+                          cursor: 'pointer',
+                          transition: 'all var(--transition-normal)'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.borderColor = 'var(--primary)';
+                          e.currentTarget.style.transform = 'translateY(-1px)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.borderColor = 'var(--border-primary)';
+                          e.currentTarget.style.transform = 'translateY(0px)';
                         }}
                       >
-                        <Edit2 size={12} />
+                        <Edit2 size={13} />
                       </button>
 
                       <button
                         onClick={() => handleDeleteResource(r.id)}
                         className="glass-btn-secondary"
                         style={{
-                          padding: '6px',
-                          borderRadius: '6px',
+                          padding: '8px',
+                          borderRadius: '8px',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           color: 'var(--color-critical)',
                           border: '1px solid rgba(244, 63, 94, 0.2)',
-                          cursor: 'pointer'
+                          cursor: 'pointer',
+                          transition: 'all var(--transition-normal)'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'var(--color-critical-bg)';
+                          e.currentTarget.style.borderColor = 'rgba(244, 63, 94, 0.4)';
+                          e.currentTarget.style.transform = 'translateY(-1px)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'var(--bg-secondary)';
+                          e.currentTarget.style.borderColor = 'rgba(244, 63, 94, 0.2)';
+                          e.currentTarget.style.transform = 'translateY(0px)';
                         }}
                       >
-                        <Trash2 size={12} />
+                        <Trash2 size={13} />
                       </button>
                     </div>
                   </td>

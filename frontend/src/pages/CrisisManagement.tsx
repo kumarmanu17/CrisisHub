@@ -195,7 +195,7 @@ export const CrisisManagement: React.FC<CrisisManagementProps> = ({ user }) => {
       )}
 
       {/* Control Buttons */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Tactical Incidents List</h2>
         
         <div style={{ display: 'flex', gap: '12px' }}>
@@ -224,8 +224,8 @@ export const CrisisManagement: React.FC<CrisisManagementProps> = ({ user }) => {
         <div style={{
           position: 'fixed',
           top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0, 0, 0, 0.4)',
-          backdropFilter: 'blur(4px)',
+          background: 'rgba(0, 0, 0, 0.5)',
+          backdropFilter: 'blur(6px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -236,11 +236,12 @@ export const CrisisManagement: React.FC<CrisisManagementProps> = ({ user }) => {
             maxWidth: '560px',
             padding: '32px',
             maxHeight: '90vh',
-            overflowY: 'auto'
+            overflowY: 'auto',
+            borderRadius: '20px'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Declare Corporate Crisis</h3>
-              <X size={20} onClick={() => setShowAddForm(false)} style={{ cursor: 'pointer', color: 'var(--text-secondary)' }} />
+              <X size={20} onClick={() => setShowAddForm(false)} style={{ cursor: 'pointer', color: 'var(--text-secondary)', transition: 'color var(--transition-fast)' }} />
             </div>
 
             <form onSubmit={handleAddCrisis} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -282,16 +283,17 @@ export const CrisisManagement: React.FC<CrisisManagementProps> = ({ user }) => {
                       key={sev}
                       type="button"
                       onClick={() => setSeverity(sev)}
-                      className={severity === sev ? '' : 'glass-btn-secondary'}
                       style={{
                         padding: '10px',
                         fontSize: '0.8rem',
                         fontWeight: 700,
-                        borderRadius: '6px',
+                        borderRadius: '8px',
                         cursor: 'pointer',
                         border: '1px solid var(--border-primary)',
-                        background: severity === sev ? 'var(--primary-gradient)' : 'transparent',
-                        color: severity === sev ? '#fff' : 'var(--text-secondary)'
+                        background: severity === sev ? 'var(--primary-gradient)' : 'var(--bg-secondary)',
+                        color: severity === sev ? '#ffffff' : 'var(--text-secondary)',
+                        boxShadow: severity === sev ? '0 4px 12px var(--primary-glow)' : 'none',
+                        transition: 'all var(--transition-normal)'
                       }}
                     >
                       {getSeverityLabel(sev)}
@@ -356,7 +358,7 @@ export const CrisisManagement: React.FC<CrisisManagementProps> = ({ user }) => {
 
       {/* Incident List Table */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '40px' }}>Loading incident reports...</div>
+        <div style={{ textAlign: 'center', padding: '40px', fontWeight: 600 }}>Loading incident reports...</div>
       ) : crises.length > 0 ? (
         <div className="enterprise-table-container">
           <table className="enterprise-table">
@@ -419,7 +421,7 @@ export const CrisisManagement: React.FC<CrisisManagementProps> = ({ user }) => {
                         <div style={{ display: 'flex', gap: '8px' }}>
                           <button
                             onClick={() => handleResolveCrisis(c.id)}
-                            className="glass-btn"
+                            className="glass-btn-secondary"
                             style={{
                               padding: '6px 12px',
                               fontSize: '0.75rem',
@@ -427,23 +429,40 @@ export const CrisisManagement: React.FC<CrisisManagementProps> = ({ user }) => {
                               background: 'var(--color-low-bg)',
                               color: 'var(--color-low)',
                               border: '1px solid rgba(16, 185, 129, 0.3)',
-                              boxShadow: 'none'
+                              cursor: 'pointer'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'rgba(16, 185, 129, 0.25)';
+                              e.currentTarget.style.transform = 'translateY(-1px)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'var(--color-low-bg)';
+                              e.currentTarget.style.transform = 'translateY(0px)';
                             }}
                           >
-                            <CheckCircle size={12} />
+                            <CheckCircle size={13} />
                             Resolve
                           </button>
 
                           <button
                             onClick={() => handleDeleteCrisis(c.id)}
-                            className="glass-btn"
+                            className="glass-btn-secondary"
                             style={{
                               padding: '6px 12px',
                               fontSize: '0.75rem',
                               borderRadius: '6px',
                               background: 'transparent',
                               color: 'var(--color-critical)',
-                              border: '1px solid rgba(244, 63, 94, 0.12)'
+                              border: '1px solid rgba(244, 63, 94, 0.2)',
+                              cursor: 'pointer'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'var(--color-critical-bg)';
+                              e.currentTarget.style.transform = 'translateY(-1px)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'transparent';
+                              e.currentTarget.style.transform = 'translateY(0px)';
                             }}
                           >
                             Delete

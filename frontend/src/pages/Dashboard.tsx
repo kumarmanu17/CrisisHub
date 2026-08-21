@@ -135,25 +135,27 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
           <div style={{
             background: 'var(--color-critical-bg)',
             color: 'var(--color-critical)',
-            width: '52px',
-            height: '52px',
-            borderRadius: '12px',
+            width: '56px',
+            height: '56px',
+            borderRadius: '14px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            border: '1px solid rgba(244, 63, 94, 0.25)',
+            boxShadow: '0 4px 12px rgba(244, 63, 94, 0.15)'
           }}>
-            <ShieldAlert size={26} />
+            <ShieldAlert size={28} />
           </div>
           <div>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Active Incidents
             </span>
-            <h3 style={{ fontSize: '1.8rem', fontWeight: 800, marginTop: '2px' }}>
+            <h3 style={{ fontSize: '1.9rem', fontWeight: 800, marginTop: '2px', letterSpacing: '-0.5px' }}>
               {metrics.pendingCrises + metrics.allocatedCrises}
             </h3>
-            <div style={{ display: 'flex', gap: '8px', fontSize: '0.75rem', marginTop: '4px' }}>
+            <div style={{ display: 'flex', gap: '8px', fontSize: '0.75rem', marginTop: '6px' }}>
               <span style={{ color: 'var(--color-high)', fontWeight: 700 }}>{metrics.pendingCrises} Pending</span>
-              <span style={{ color: 'var(--text-tertiary)' }}>|</span>
+              <span style={{ color: 'var(--text-tertiary)' }}>•</span>
               <span style={{ color: 'var(--color-medium)', fontWeight: 700 }}>{metrics.allocatedCrises} Assigned</span>
             </div>
           </div>
@@ -164,26 +166,28 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
           <div style={{
             background: 'var(--color-medium-bg)',
             color: 'var(--color-medium)',
-            width: '52px',
-            height: '52px',
-            borderRadius: '12px',
+            width: '56px',
+            height: '56px',
+            borderRadius: '14px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            border: '1px solid rgba(59, 130, 246, 0.25)',
+            boxShadow: '0 4px 12px rgba(59, 130, 246, 0.15)'
           }}>
-            <Cpu size={26} />
+            <Cpu size={28} />
           </div>
           <div>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Resource Utilized
             </span>
-            <h3 style={{ fontSize: '1.8rem', fontWeight: 800, marginTop: '2px' }}>
+            <h3 style={{ fontSize: '1.9rem', fontWeight: 800, marginTop: '2px', letterSpacing: '-0.5px' }}>
               {metrics.allocationRate.toFixed(1)}%
             </h3>
-            <div style={{ display: 'flex', gap: '8px', fontSize: '0.75rem', marginTop: '4px' }}>
+            <div style={{ display: 'flex', gap: '8px', fontSize: '0.75rem', marginTop: '6px' }}>
               <span style={{ color: 'var(--color-low)', fontWeight: 700 }}>{metrics.availableResources} Available</span>
-              <span style={{ color: 'var(--text-tertiary)' }}>|</span>
-              <span style={{ color: 'var(--text-secondary)' }}>{metrics.allocatedResources} Deployed</span>
+              <span style={{ color: 'var(--text-tertiary)' }}>•</span>
+              <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>{metrics.allocatedResources} Deployed</span>
             </div>
           </div>
         </div>
@@ -193,23 +197,25 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
           <div style={{
             background: 'var(--color-low-bg)',
             color: 'var(--color-low)',
-            width: '52px',
-            height: '52px',
-            borderRadius: '12px',
+            width: '56px',
+            height: '56px',
+            borderRadius: '14px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            border: '1px solid rgba(16, 185, 129, 0.25)',
+            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.15)'
           }}>
-            <CheckCircle2 size={26} />
+            <CheckCircle2 size={28} />
           </div>
           <div>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Resolved Crises
             </span>
-            <h3 style={{ fontSize: '1.8rem', fontWeight: 800, marginTop: '2px' }}>
+            <h3 style={{ fontSize: '1.9rem', fontWeight: 800, marginTop: '2px', letterSpacing: '-0.5px' }}>
               {metrics.resolvedCrises}
             </h3>
-            <span style={{ fontSize: '0.75rem', color: 'var(--color-low)', fontWeight: 700, display: 'block', marginTop: '4px' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--color-low)', fontWeight: 700, display: 'block', marginTop: '6px' }}>
               100% resolution tracking
             </span>
           </div>
@@ -226,16 +232,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
             <div style={{ 
               background: 'var(--bg-secondary)',
               border: '1px solid var(--border-primary)',
-              borderRadius: '12px',
-              padding: '20px',
+              borderRadius: '14px',
+              padding: '22px',
               display: 'flex',
               flexDirection: 'column',
               gap: '16px'
             }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
                 <div>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700 }}>Trigger Tactical Optimizer</h4>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                  <h4 style={{ fontSize: '0.98rem', fontWeight: 700 }}>Trigger Tactical Optimizer</h4>
+                  <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: '3px' }}>
                     Process pending incidents through the C++ server.
                   </p>
                 </div>
@@ -243,7 +249,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                   onClick={handleRunAllocation} 
                   disabled={allocating || metrics.pendingCrises === 0}
                   className="glass-btn"
-                  style={{ padding: '10px 20px', fontSize: '0.9rem' }}
+                  style={{ padding: '11px 22px', fontSize: '0.9rem' }}
                 >
                   <Play size={16} fill="currentColor" />
                   {allocating ? 'Processing Engine...' : 'Run Allocation'}
@@ -254,12 +260,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                 <div style={{
                   background: 'var(--bg-primary)',
                   border: '1px solid var(--border-primary)',
-                  borderRadius: '8px',
-                  padding: '12px 16px',
+                  borderRadius: '10px',
+                  padding: '14px 18px',
                   fontSize: '0.85rem',
                   color: 'var(--text-primary)',
-                  lineHeight: '1.4',
-                  animation: 'fadeIn 0.3s ease'
+                  lineHeight: '1.45',
+                  animation: 'fadeIn var(--transition-normal) forwards'
                 }}>
                   <strong>Optimizer Status:</strong> {allocResult.msg}
                 </div>
@@ -269,15 +275,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
             <div style={{
               background: 'rgba(59, 130, 246, 0.05)',
               border: '1px dashed rgba(59, 130, 246, 0.3)',
-              borderRadius: '12px',
-              padding: '20px',
+              borderRadius: '14px',
+              padding: '24px',
               textAlign: 'center',
               color: 'var(--text-secondary)',
               fontSize: '0.9rem'
             }}>
-              <HelpCircle size={32} style={{ color: 'var(--color-medium)', marginBottom: '8px' }} />
-              <p style={{ fontWeight: 600 }}>Standard Employee Account</p>
-              <p style={{ fontSize: '0.8rem', marginTop: '4px' }}>
+              <HelpCircle size={36} style={{ color: 'var(--color-medium)', marginBottom: '10px' }} />
+              <p style={{ fontWeight: 700, color: 'var(--text-primary)' }}>Standard Employee Account</p>
+              <p style={{ fontSize: '0.82rem', marginTop: '6px' }}>
                 Only Administrator accounts have permission to run the resource allocation optimizer engine.
               </p>
             </div>
@@ -289,9 +295,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
             {Object.keys(metrics.deptCrisisBreakdown).length > 0 ? (
               <div className="custom-bar-chart">
                 {Object.entries(metrics.deptCrisisBreakdown).map(([dept, count]) => {
-                  // Find max count to scale heights (default max = 10 for display scale)
                   const maxVal = Math.max(...Object.values(metrics.deptCrisisBreakdown), 4);
-                  const pctHeight = (count / maxVal) * 80 + 10; // scale 10% to 90%
+                  const pctHeight = (count / maxVal) * 80 + 10;
                   return (
                     <div key={dept} className="chart-column">
                       <div 
@@ -323,59 +328,71 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
         {/* Right Side: Severity Breakdown & Allocation List */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {/* Severity Stats Card */}
-          <div className="glass-panel" style={{ padding: '24px' }}>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '16px' }}>Incident Threat Level Breakdown</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="glass-panel" style={{ padding: '28px' }}>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '20px' }}>Incident Threat Level Breakdown</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {/* Critical */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem' }}>
-                <span className="severity-badge critical">Critical</span>
-                <span style={{ fontWeight: 700 }}>{metrics.severityStats.critical}</span>
-              </div>
-              <div style={{ height: '6px', background: 'var(--bg-secondary)', borderRadius: '3px', overflow: 'hidden' }}>
-                <div style={{ 
-                  height: '100%', 
-                  background: 'var(--color-critical)', 
-                  width: `${metrics.totalCrises > 0 ? (metrics.severityStats.critical / metrics.totalCrises) * 100 : 0}%` 
-                }}></div>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem', marginBottom: '6px' }}>
+                  <span className="severity-badge critical">Critical</span>
+                  <span style={{ fontWeight: 700 }}>{metrics.severityStats.critical}</span>
+                </div>
+                <div style={{ height: '7px', background: 'var(--bg-secondary)', borderRadius: '4px', overflow: 'hidden' }}>
+                  <div style={{ 
+                    height: '100%', 
+                    background: 'var(--color-critical)', 
+                    width: `${metrics.totalCrises > 0 ? (metrics.severityStats.critical / metrics.totalCrises) * 100 : 0}%`,
+                    transition: 'width var(--transition-slow)'
+                  }}></div>
+                </div>
               </div>
 
               {/* High */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem' }}>
-                <span className="severity-badge high">High</span>
-                <span style={{ fontWeight: 700 }}>{metrics.severityStats.high}</span>
-              </div>
-              <div style={{ height: '6px', background: 'var(--bg-secondary)', borderRadius: '3px', overflow: 'hidden' }}>
-                <div style={{ 
-                  height: '100%', 
-                  background: 'var(--color-high)', 
-                  width: `${metrics.totalCrises > 0 ? (metrics.severityStats.high / metrics.totalCrises) * 100 : 0}%` 
-                }}></div>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem', marginBottom: '6px' }}>
+                  <span className="severity-badge high">High</span>
+                  <span style={{ fontWeight: 700 }}>{metrics.severityStats.high}</span>
+                </div>
+                <div style={{ height: '7px', background: 'var(--bg-secondary)', borderRadius: '4px', overflow: 'hidden' }}>
+                  <div style={{ 
+                    height: '100%', 
+                    background: 'var(--color-high)', 
+                    width: `${metrics.totalCrises > 0 ? (metrics.severityStats.high / metrics.totalCrises) * 100 : 0}%`,
+                    transition: 'width var(--transition-slow)'
+                  }}></div>
+                </div>
               </div>
 
               {/* Medium */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem' }}>
-                <span className="severity-badge medium">Medium</span>
-                <span style={{ fontWeight: 700 }}>{metrics.severityStats.medium}</span>
-              </div>
-              <div style={{ height: '6px', background: 'var(--bg-secondary)', borderRadius: '3px', overflow: 'hidden' }}>
-                <div style={{ 
-                  height: '100%', 
-                  background: 'var(--color-medium)', 
-                  width: `${metrics.totalCrises > 0 ? (metrics.severityStats.medium / metrics.totalCrises) * 100 : 0}%` 
-                }}></div>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem', marginBottom: '6px' }}>
+                  <span className="severity-badge medium">Medium</span>
+                  <span style={{ fontWeight: 700 }}>{metrics.severityStats.medium}</span>
+                </div>
+                <div style={{ height: '7px', background: 'var(--bg-secondary)', borderRadius: '4px', overflow: 'hidden' }}>
+                  <div style={{ 
+                    height: '100%', 
+                    background: 'var(--color-medium)', 
+                    width: `${metrics.totalCrises > 0 ? (metrics.severityStats.medium / metrics.totalCrises) * 100 : 0}%`,
+                    transition: 'width var(--transition-slow)'
+                  }}></div>
+                </div>
               </div>
 
               {/* Low */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem' }}>
-                <span className="severity-badge low">Low</span>
-                <span style={{ fontWeight: 700 }}>{metrics.severityStats.low}</span>
-              </div>
-              <div style={{ height: '6px', background: 'var(--bg-secondary)', borderRadius: '3px', overflow: 'hidden' }}>
-                <div style={{ 
-                  height: '100%', 
-                  background: 'var(--color-low)', 
-                  width: `${metrics.totalCrises > 0 ? (metrics.severityStats.low / metrics.totalCrises) * 100 : 0}%` 
-                }}></div>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem', marginBottom: '6px' }}>
+                  <span className="severity-badge low">Low</span>
+                  <span style={{ fontWeight: 700 }}>{metrics.severityStats.low}</span>
+                </div>
+                <div style={{ height: '7px', background: 'var(--bg-secondary)', borderRadius: '4px', overflow: 'hidden' }}>
+                  <div style={{ 
+                    height: '100%', 
+                    background: 'var(--color-low)', 
+                    width: `${metrics.totalCrises > 0 ? (metrics.severityStats.low / metrics.totalCrises) * 100 : 0}%`,
+                    transition: 'width var(--transition-slow)'
+                  }}></div>
+                </div>
               </div>
             </div>
           </div>

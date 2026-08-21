@@ -53,14 +53,15 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'radial-gradient(circle at 50% 50%, var(--bg-secondary) 0%, var(--bg-primary) 100%)',
+      background: 'radial-gradient(circle at 50% 40%, rgba(99, 102, 241, 0.12) 0%, rgba(14, 165, 233, 0.05) 50%, var(--bg-primary) 100%)',
       padding: '20px'
     }}>
       <div className="glass-panel animate-slide" style={{
         width: '100%',
-        maxWidth: '440px',
-        padding: '40px',
-        boxShadow: 'var(--shadow-glass), var(--shadow-lg)'
+        maxWidth: '450px',
+        padding: '44px 40px',
+        boxShadow: 'var(--shadow-glass), var(--shadow-lg)',
+        borderRadius: '20px'
       }}>
         {/* Brand */}
         <div style={{
@@ -73,20 +74,21 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           <div style={{
             background: 'var(--primary-gradient)',
             color: '#fff',
-            width: '56px',
-            height: '56px',
-            borderRadius: '14px',
+            width: '60px',
+            height: '60px',
+            borderRadius: '16px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 6px 16px var(--primary-glow)'
+            boxShadow: '0 8px 24px var(--primary-glow)',
+            transition: 'transform var(--transition-normal)'
           }}>
-            <ShieldAlert size={30} />
+            <ShieldAlert size={32} />
           </div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 800, letterSpacing: '-0.75px', textAlign: 'center' }}>
+          <h1 style={{ fontSize: '1.9rem', fontWeight: 800, letterSpacing: '-0.75px', textAlign: 'center' }}>
             CrisisCommand
           </h1>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textAlign: 'center', marginTop: '-4px' }}>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textAlign: 'center', marginTop: '-4px', fontWeight: 500 }}>
             Corporate Crisis Resource Allocation Portal
           </p>
         </div>
@@ -94,14 +96,15 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         {error && (
           <div style={{
             background: 'var(--color-critical-bg)',
-            border: '1px solid rgba(244, 63, 94, 0.3)',
+            border: '1px solid rgba(244, 63, 94, 0.35)',
             color: 'var(--color-critical)',
             padding: '12px 16px',
-            borderRadius: '8px',
+            borderRadius: '10px',
             fontSize: '0.85rem',
             fontWeight: 600,
             marginBottom: '24px',
-            lineHeight: '1.4'
+            lineHeight: '1.4',
+            animation: 'fadeIn var(--transition-normal) forwards'
           }}>
             {error}
           </div>
@@ -111,10 +114,12 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           <div>
             <label style={{ 
               display: 'block', 
-              fontSize: '0.85rem', 
+              fontSize: '0.82rem', 
               fontWeight: 700, 
               color: 'var(--text-secondary)',
-              marginBottom: '8px'
+              marginBottom: '8px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em'
             }}>
               Username
             </label>
@@ -124,7 +129,8 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 left: '14px', 
                 top: '50%', 
                 transform: 'translateY(-50%)',
-                color: 'var(--text-tertiary)'
+                color: 'var(--text-tertiary)',
+                pointerEvents: 'none'
               }} />
               <input
                 type="text"
@@ -140,10 +146,12 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           <div>
             <label style={{ 
               display: 'block', 
-              fontSize: '0.85rem', 
+              fontSize: '0.82rem', 
               fontWeight: 700, 
               color: 'var(--text-secondary)',
-              marginBottom: '8px'
+              marginBottom: '8px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em'
             }}>
               Password
             </label>
@@ -153,7 +161,8 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 left: '14px', 
                 top: '50%', 
                 transform: 'translateY(-50%)',
-                color: 'var(--text-tertiary)'
+                color: 'var(--text-tertiary)',
+                pointerEvents: 'none'
               }} />
               <input
                 type="password"
@@ -174,6 +183,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               marginTop: '10px',
               padding: '14px',
               fontSize: '1rem',
+              fontWeight: 700,
               display: 'flex',
               gap: '8px'
             }}
@@ -189,14 +199,14 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           borderTop: '1px solid var(--border-primary)',
           textAlign: 'center'
         }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>
+          <span style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.06em' }}>
             Demo Profiles (Click to prefill)
           </span>
           <div style={{
             display: 'flex',
             gap: '12px',
             justifyContent: 'center',
-            marginTop: '12px'
+            marginTop: '14px'
           }}>
             <button
               onClick={() => fillCredentials('admin')}
@@ -205,14 +215,14 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                padding: '8px 12px',
+                padding: '9px 14px',
                 fontSize: '0.8rem',
                 fontWeight: 700,
-                borderRadius: '6px',
+                borderRadius: '8px',
                 cursor: 'pointer'
               }}
             >
-              <ShieldCheck size={14} style={{ color: 'var(--color-critical)' }} />
+              <ShieldCheck size={15} style={{ color: 'var(--color-critical)' }} />
               Admin Portal
             </button>
 
@@ -223,14 +233,14 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                padding: '8px 12px',
+                padding: '9px 14px',
                 fontSize: '0.8rem',
                 fontWeight: 700,
-                borderRadius: '6px',
+                borderRadius: '8px',
                 cursor: 'pointer'
               }}
             >
-              <UserIcon size={14} style={{ color: 'var(--color-low)' }} />
+              <UserIcon size={15} style={{ color: 'var(--color-low)' }} />
               Employee Portal
             </button>
           </div>
