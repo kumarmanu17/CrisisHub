@@ -1,0 +1,24 @@
+# Logs
+*.log
+logs/
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build artifacts & Binaries
+dist/
+dist-ssr/
+*.exe
+*.o
+*.obj
+
+# Environment / Local settings
+*.env
+*.env.local
+*.local
+
+# Editor & OS files
+.vscode/
+.idea/
+.DS_Store

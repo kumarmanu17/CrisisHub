@@ -1,0 +1,16 @@
+[
+    {
+        "department": "IT Operations",
+        "name": "System Administrator",
+        "password": "admin123",
+        "role": "admin",
+        "username": "admin"
+    },
+    {
+        "department": "Customer Support",
+        "name": "John Doe",
+        "password": "emp123",
+        "role": "employee",
+        "username": "employee"
+    }
+]

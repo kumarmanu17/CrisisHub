@@ -1,0 +1,38 @@
+[
+    {
+        "available": true,
+        "capacity": 1,
+        "cost": 100.0,
+        "department": "IT",
+        "id": "R-3001",
+        "name": "Cisco Backup Switch Node B",
+        "type": "IT Staff"
+    },
+    {
+        "available": false,
+        "capacity": 0,
+        "cost": 65.0,
+        "department": "IT",
+        "id": "R-3002",
+        "name": "Full Stack Developer",
+        "type": "IT Staff"
+    },
+    {
+        "available": true,
+        "capacity": 107,
+        "cost": 100.0,
+        "department": "IT",
+        "id": "R-3003",
+        "name": "Full Stack Developer",
+        "type": "IT Staff"
+    },
+    {
+        "available": false,
+        "capacity": 0,
+        "cost": 100.0,
+        "department": "IT",
+        "id": "R-3004",
+        "name": "Frontend Dev",
+        "type": "IT Staff"
+    }
+]

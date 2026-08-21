@@ -1,0 +1,9 @@
+#pragma once
+
+#include <experimental/any>
+
+namespace std {
+using experimental::any;
+using experimental::any_cast;
+using experimental::bad_any_cast;
+}

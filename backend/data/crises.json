@@ -1,0 +1,69 @@
+[
+    {
+        "allocatedResourceIds": [
+            "R-3003"
+        ],
+        "allocatedResources": [
+            {
+                "resourceId": "R-3003",
+                "units": 2
+            }
+        ],
+        "department": "Operations",
+        "description": "Logistics backlog requires manual sorting assistance.",
+        "id": "C-2002",
+        "requiredResourceType": "Peons (Punes)",
+        "requiredResources": [
+            "Peons (Punes)"
+        ],
+        "requiredUnits": 2,
+        "severity": 2,
+        "status": "Allocated",
+        "timestamp": "2026-06-03T16:16:31Z",
+        "type": "Operational Disruption"
+    },
+    {
+        "allocatedResourceIds": [],
+        "allocatedResources": [],
+        "department": "IT",
+        "description": "sdfbtn",
+        "id": "C-2003",
+        "requiredResourceType": "Full Stack Developer",
+        "requiredResources": [
+            "Full Stack Developer"
+        ],
+        "requiredUnits": 1,
+        "severity": 2,
+        "status": "Resolved",
+        "timestamp": "2026-06-04T04:23:50Z",
+        "type": "IT Outage"
+    },
+    {
+        "allocatedResourceIds": [
+            "R-3002",
+            "R-3003"
+        ],
+        "allocatedResources": [
+            {
+                "resourceId": "R-3002",
+                "units": 2
+            },
+            {
+                "resourceId": "R-3003",
+                "units": 13
+            }
+        ],
+        "department": "IT",
+        "description": ".",
+        "id": "C-2004",
+        "requiredResourceType": "Full Stack Developer",
+        "requiredResources": [
+            "Full Stack Developer"
+        ],
+        "requiredUnits": 15,
+        "severity": 2,
+        "status": "Allocated",
+        "timestamp": "2026-06-09T12:49:04Z",
+        "type": "Employee Shortage"
+    }
+]

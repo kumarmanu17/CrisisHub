@@ -1,0 +1,45 @@
+[
+    {
+        "allocatedResources": [],
+        "department": "Operations",
+        "description": "gfb",
+        "id": "P-4001",
+        "name": "New Workforce Project",
+        "requiredUnits": 1,
+        "resourceType": "IT Staff",
+        "status": "Completed",
+        "timestamp": "2026-06-03T14:55:01Z"
+    },
+    {
+        "allocatedResources": [
+            {
+                "resourceId": "R-3002",
+                "units": 1
+            }
+        ],
+        "department": "IT",
+        "description": "Develop and deploy the new corporate landing page.",
+        "id": "P-4002",
+        "name": "Website Revamp",
+        "requiredUnits": 1,
+        "resourceType": "Full Stack Developer",
+        "status": "Allocated",
+        "timestamp": "2026-06-03T16:16:31Z"
+    },
+    {
+        "allocatedResources": [
+            {
+                "resourceId": "R-3004",
+                "units": 1
+            }
+        ],
+        "department": "Operations",
+        "description": "",
+        "id": "P-4003",
+        "name": "New Workforce Project",
+        "requiredUnits": 1,
+        "resourceType": "Frontend Dev",
+        "status": "Allocated",
+        "timestamp": "2026-06-04T04:23:18Z"
+    }
+]
